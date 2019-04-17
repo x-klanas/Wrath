@@ -13,6 +13,5 @@ namespace GameController
         {
             StartOffset = startOffset;
         }
-        
     }
 }
