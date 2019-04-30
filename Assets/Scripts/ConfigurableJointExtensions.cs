@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Adapted from: https://gist.github.com/mstevenson/4958837
+/// SetLocalTargetRotation, SetWorldTargetRotation and SetTargetRotation
+/// adapted from: https://gist.github.com/mstevenson/4958837
 /// </summary>
 public static class ConfigurableJointExtensions {
     /// <summary>
@@ -9,6 +10,10 @@ public static class ConfigurableJointExtensions {
     /// The joint transform's local rotation must be cached on joint initialization and passed into this method.
     /// </summary>
     public static void SetLocalTargetRotation(this ConfigurableJoint joint, Quaternion targetLocalRotation, Quaternion initialLocalRotation) {
+        if (joint.configuredInWorldSpace) {
+            Debug.LogError("SetLocalTargetRotation should not be used with joints that are configured in world space. For world space joints, use SetWorldTargetRotation.", joint);
+        }
+
         SetTargetRotation(joint, targetLocalRotation, initialLocalRotation, Space.Self);
     }
 
@@ -17,6 +22,10 @@ public static class ConfigurableJointExtensions {
     /// The joint transform's world rotation must be cached on joint initialization and passed into this method.
     /// </summary>
     public static void SetWorldTargetRotation(this ConfigurableJoint joint, Quaternion targetWorldRotation, Quaternion initialWorldRotation) {
+        if (!joint.configuredInWorldSpace) {
+            Debug.LogError("SetWorldTargetRotation must be used with joints that are configured in world space. For local space joints, use SetLocalTargetRotation.", joint);
+        }
+
         SetTargetRotation(joint, targetWorldRotation, initialWorldRotation, Space.World);
     }
 
@@ -24,7 +33,7 @@ public static class ConfigurableJointExtensions {
     /// Sets a joint's targetRotation to match a given rotation.
     /// The joint transform's world rotation must be cached on joint initialization and passed into this method.
     /// </summary>
-    public static void SetTargetRotation(ConfigurableJoint joint, Quaternion targetRotation, Quaternion initialRotation, Space space) {
+    public static void SetTargetRotation(this ConfigurableJoint joint, Quaternion targetRotation, Quaternion initialRotation, Space space) {
         // Calculate the rotation expressed by the joint's axis and secondary axis
         Vector3 right = joint.axis;
         Vector3 forward = Vector3.Cross(right, joint.secondaryAxis).normalized;
