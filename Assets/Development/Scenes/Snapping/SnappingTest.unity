@@ -694,7 +694,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 704431131}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.982, y: 1.493, z: -0.11}
+  m_LocalPosition: {x: -0.681, y: 2.225, z: 0.559}
   m_LocalScale: {x: 1, y: 0.15486762, z: 0.15284}
   m_Children: []
   m_Father: {fileID: 0}
@@ -938,24 +938,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 8938865876461979225, guid: 5917cb7038da2264b9526167d5cddca5,
-        type: 3}
-      propertyPath: m_UseGravity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8938865876461979225, guid: 5917cb7038da2264b9526167d5cddca5,
-        type: 3}
-      propertyPath: m_IsKinematic
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8938865876461979231, guid: 5917cb7038da2264b9526167d5cddca5,
-        type: 3}
-      propertyPath: CanSnap
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8938865876461979231, guid: 5917cb7038da2264b9526167d5cddca5,
         type: 3}
       propertyPath: canSnap
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 281058773112524764, guid: 5917cb7038da2264b9526167d5cddca5,
+        type: 3}
+      propertyPath: onDetachFromHand.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1026,16 +1016,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8938865876461979225, guid: 5917cb7038da2264b9526167d5cddca5,
-        type: 3}
-      propertyPath: m_UseGravity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8938865876461979225, guid: 5917cb7038da2264b9526167d5cddca5,
-        type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5917cb7038da2264b9526167d5cddca5, type: 3}

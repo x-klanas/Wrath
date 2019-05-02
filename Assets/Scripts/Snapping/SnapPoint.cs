@@ -12,23 +12,45 @@ namespace Snapping {
             "default"
         };
 
-        public float snapBreakDistance = 0.5f;
-
         public Vector3 snappedRotation;
 
-        public Snappable snappable;
+        [Header("Snap settings")] [Min(0)] public float snapBreakDistance = 0f;
+        public bool unsnapOnTriggerExit = true;
+
+        [Min(0)] public float positionSpring = 1000f;
+        [Min(0)] public float positionDamper = 100f;
+        [Min(0)] public float positionMaxForce = 1000f;
+
+        [Min(0)] public float rotationSpring = 100f;
+        [Min(0)] public float rotationDamper = 10f;
+        [Min(0)] public float rotationMaxForce = 100f;
+
+        [Header("Sticky snap settings")] [Min(0)]
+        public float stickyBreakDistance = 0f;
+
+        public bool unsnapStickyOnTriggerExit = true;
+
+        [Min(0)] public float stickyPositionSpring = 1000f;
+        [Min(0)] public float stickyPositionDamper = 100f;
+        [Min(0)] public float stickyPositionMaxForce = 1000f;
+
+        [Min(0)] public float stickyRotationSpring = 100f;
+        [Min(0)] public float stickyRotationDamper = 10f;
+        [Min(0)] public float stickyRotationMaxForce = 100f;
+
+        [Header("Other settings")] public Snappable snappable;
 
         public Rigidbody Rigidbody => snappable.rigidbody;
 
         public bool IsSnapped { get; private set; }
         public bool IsSnapParent { get; private set; }
+        public bool IsSticky { get; private set; }
 
-        private ConfigurableJoint snappedJoint;
-        private SnapPoint snappedPoint;
-        private bool snappedUseGravity;
+        public ConfigurableJoint SnappedJoint { get; private set; }
+        public SnapPoint SnappedPoint { get; private set; }
 
         private void Start() {
-            if (snappable == null) {
+            if (!snappable) {
                 snappable = GetComponentInParent<Snappable>();
             }
 
@@ -37,10 +59,15 @@ namespace Snapping {
 
         private void FixedUpdate() {
             if (IsSnapped) {
-                float distance = (transform.position - snappedPoint.transform.position).magnitude;
+                float breakDistance = IsSticky ? stickyBreakDistance : snapBreakDistance;
 
-                if (distance >= snapBreakDistance) {
-                    Unsnap();
+                if (breakDistance > 0) {
+                    float distance = Vector3.Distance(transform.position, SnappedPoint.transform.position);
+
+                    if (distance > breakDistance) {
+                        Unstick();
+                        Unsnap();
+                    }
                 }
             }
         }
@@ -60,74 +87,156 @@ namespace Snapping {
             SnapTo(otherSnapPoint);
         }
 
+        private void OnTriggerExit(Collider other) {
+            if (!IsSnapped || !unsnapOnTriggerExit && !unsnapStickyOnTriggerExit) {
+                return;
+            }
+
+            SnapPoint otherSnapPoint = other.GetComponent<SnapPoint>();
+
+            if (otherSnapPoint == SnappedPoint) {
+                if (IsSticky && unsnapStickyOnTriggerExit) {
+                    Unstick();
+                    Unsnap();
+                } else if (unsnapOnTriggerExit) {
+                    Unsnap();
+                }
+            }
+        }
+
         public void SnapTo(SnapPoint otherSnapPoint) {
             Transform trans = transform;
             Transform rigidTrans = Rigidbody.transform;
+            float otherMass = otherSnapPoint.Rigidbody.mass;
 
-            snappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
+            SnappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
 
-            snappedJoint.connectedBody = otherSnapPoint.Rigidbody;
-            snappedJoint.autoConfigureConnectedAnchor = false;
-            snappedJoint.anchor = rigidTrans.InverseTransformPoint(trans.position);
-            snappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.transform.position);
-            snappedJoint.enableCollision = false;
+            SnappedJoint.connectedBody = otherSnapPoint.Rigidbody;
+            SnappedJoint.autoConfigureConnectedAnchor = false;
+            SnappedJoint.anchor = rigidTrans.InverseTransformPoint(trans.position);
+            SnappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.transform.position);
+            SnappedJoint.enableCollision = true;
 
-            // This is probably an overkill, there must be a less expensive solution (right?)
-            Quaternion rotation = trans.rotation;
-            Quaternion rigidbodyRotation = rigidTrans.rotation;
-            Quaternion rigidbodyLocalRotation = rigidTrans.localRotation;
-            Quaternion relativePointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.transform.rotation;
-            Quaternion rotatedPoint = rotation * relativePointOrientation * Quaternion.Euler(otherSnapPoint.snappedRotation);
-            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(rotation) * rigidbodyRotation;
-            Quaternion relativeRotatedPointAndObjectOrientation = Quaternion.Inverse(rigidbodyRotation) * rotatedPoint * relativePointAndObjectOrientation;
-            snappedJoint.SetLocalTargetRotation(
-                rigidbodyLocalRotation * relativeRotatedPointAndObjectOrientation,
-                rigidbodyLocalRotation);
+            SnappedJoint.SetLocalTargetRotation(GetDesiredJointLocalRotation(otherSnapPoint), rigidTrans.localRotation);
 
-            snappedJoint.xDrive = snappedJoint.yDrive = snappedJoint.zDrive = new JointDrive {
-                positionSpring = 1000f,
-                positionDamper = 10f,
-                maximumForce = 100f
+            SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                positionSpring = positionSpring * otherMass,
+                positionDamper = positionDamper * otherMass,
+                maximumForce = positionMaxForce * otherMass
             };
 
-            snappedJoint.angularXDrive = snappedJoint.angularYZDrive = new JointDrive {
-                positionSpring = 100f,
-                positionDamper = 10f,
-                maximumForce = 100f
+            SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                positionSpring = rotationSpring * otherMass,
+                positionDamper = rotationDamper * otherMass,
+                maximumForce = rotationMaxForce * otherMass
             };
-
-            snappedUseGravity = otherSnapPoint.Rigidbody.useGravity;
-            otherSnapPoint.Rigidbody.useGravity = false;
 
             IsSnapped = true;
             IsSnapParent = true;
-            snappedPoint = otherSnapPoint;
+            IsSticky = false;
+            SnappedPoint = otherSnapPoint;
+            snappable.PointSnapped(this);
 
             otherSnapPoint.IsSnapped = true;
-            otherSnapPoint.snappedPoint = this;
-            otherSnapPoint.snappedJoint = snappedJoint;
+            otherSnapPoint.IsSticky = false;
+            otherSnapPoint.SnappedPoint = this;
+            otherSnapPoint.SnappedJoint = SnappedJoint;
+            otherSnapPoint.snappable.PointSnapped(otherSnapPoint);
         }
 
         public void Unsnap() {
-            if (IsSnapped) {
+            if (IsSnapped && !IsSticky && !SnappedPoint.IsSticky) {
                 if (IsSnapParent) {
-                    Destroy(snappedJoint);
+                    Destroy(SnappedJoint);
 
                     IsSnapped = false;
                     IsSnapParent = false;
+                    snappable.PointUnsnapped(this);
 
-                    snappedPoint.IsSnapped = false;
-                    snappedPoint.snappedJoint = null;
-                    snappedPoint.snappedPoint = null;
-                    snappedPoint.Rigidbody.useGravity = snappedUseGravity;
+                    SnappedPoint.IsSnapped = false;
+                    SnappedPoint.SnappedJoint = null;
+                    SnappedPoint.SnappedPoint = null;
+                    SnappedPoint.snappable.PointUnsnapped(SnappedPoint);
 
                     IsSnapped = false;
-                    snappedPoint = null;
-                    snappedJoint = null;
+                    SnappedPoint = null;
+                    SnappedJoint = null;
                 } else {
-                    snappedPoint.Unsnap();
+                    SnappedPoint.Unsnap();
                 }
             }
+        }
+
+        public void Stick() {
+            if (IsSnapped && (!IsSticky || !SnappedPoint.IsSticky)) {
+                if (IsSnapParent) {
+                    IsSticky = true;
+                    SnappedPoint.IsSticky = true;
+
+                    float otherMass = SnappedPoint.Rigidbody.mass;
+
+                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                        positionSpring = stickyPositionSpring * otherMass,
+                        positionDamper = stickyPositionDamper * otherMass,
+                        maximumForce = stickyPositionMaxForce * otherMass
+                    };
+
+                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                        positionSpring = stickyRotationSpring * otherMass,
+                        positionDamper = stickyRotationDamper * otherMass,
+                        maximumForce = stickyRotationMaxForce * otherMass
+                    };
+                } else {
+                    SnappedPoint.Stick();
+                }
+            }
+        }
+
+        public void Unstick() {
+            if (IsSnapped && (IsSticky || SnappedPoint.IsSticky)) {
+                if (IsSnapParent) {
+                    IsSticky = false;
+                    SnappedPoint.IsSticky = false;
+
+                    float otherMass = SnappedPoint.Rigidbody.mass;
+
+                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                        positionSpring = positionSpring * otherMass,
+                        positionDamper = positionDamper * otherMass,
+                        maximumForce = positionMaxForce * otherMass
+                    };
+
+                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                        positionSpring = rotationSpring * otherMass,
+                        positionDamper = rotationDamper * otherMass,
+                        maximumForce = rotationMaxForce * otherMass
+                    };
+                } else {
+                    SnappedPoint.Unstick();
+                }
+            }
+        }
+
+        public Quaternion GetDesiredJointLocalRotation(SnapPoint otherSnapPoint) {
+            Transform rigidTrans = Rigidbody.transform;
+            Quaternion rigidbodyRotation = rigidTrans.rotation;
+
+            Quaternion relativeObjectAndOtherPointOrientation = Quaternion.Inverse(rigidbodyRotation) * otherSnapPoint.transform.rotation;
+            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(transform.rotation) * rigidbodyRotation;
+            Quaternion relativeRotatedPointAndObjectOrientation = relativeObjectAndOtherPointOrientation * Quaternion.Euler(otherSnapPoint.snappedRotation) * relativePointAndObjectOrientation;
+
+            return rigidTrans.localRotation * relativeRotatedPointAndObjectOrientation;
+        }
+
+        public Quaternion GetDesiredChildLocalRotation(SnapPoint otherSnapPoint) {
+            Quaternion rotation = transform.rotation;
+            Transform rigidTrans = Rigidbody.transform;
+
+            Quaternion relativePointAndOtherPointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.transform.rotation;
+            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(rotation) * rigidTrans.rotation;
+            Quaternion relativeOrientation = relativePointAndOtherPointOrientation * Quaternion.Euler(snappedRotation) * relativePointAndObjectOrientation;
+
+            return rigidTrans.localRotation * relativeOrientation;
         }
     }
 }
