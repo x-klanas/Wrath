@@ -9,22 +9,30 @@ public class InGame_Menu : MonoBehaviour
     public Transform canvas;
 
     public Vector3 old_position;//position before teleport
-    public Vector3 center;
-    public GameObject Player;//player
-    public GameObject Target; //teleportation
+    public GameObject thePlayer;//player
+    public Transform theTarget; //teleportation target
 
     // Start is called before the first frame update
-    public void RestartGame()
+    public void RestartButton()
     {
         Scene scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.name);
     }
 
-    public void Star()
+    public void ResumeButton()
     {
-        old_position = new Vector3(Player.gameObject.transform.position.x, Player.gameObject.transform.position.y, Player.gameObject.transform.position.z);
+        canvas.gameObject.SetActive(false);
+        teleportBackFromMenu();
+        Time.timeScale = 1;
+        
     }
 
+    
+    public void ExitButton()
+    {
+        Scene mainMenuScene = SceneManager.GetSceneByBuildIndex(1);
+        SceneManager.LoadScene(mainMenuScene.name);
+    }
 
     void Update()
     {
@@ -34,17 +42,29 @@ public class InGame_Menu : MonoBehaviour
             {
                 canvas.gameObject.SetActive(true);
                 Time.timeScale = 0;
-                Player.gameObject.transform.position = Target.gameObject.transform.position;
+                teleportIntoMenu();
             }
             
             else
             {
                 canvas.gameObject.SetActive(false);
-                Player.gameObject.transform.position = center;
-                //Player.gameObject.transform.position = old_position;
+                teleportBackFromMenu();
                 Time.timeScale = 1;
             }
         }
+    }
+
+
+    void teleportIntoMenu()
+    {
+        old_position = thePlayer.gameObject.transform.position;
+        thePlayer.gameObject.transform.position = theTarget.transform.position;
+
+    }
+    
+    void teleportBackFromMenu()
+    {
+        thePlayer.gameObject.transform.position = old_position;
     }
     
     
