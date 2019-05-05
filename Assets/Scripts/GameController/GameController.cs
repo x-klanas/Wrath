@@ -10,6 +10,9 @@ namespace GameController
         private MyStopwatch constructionTimer = new MyStopwatch(DateTime.Now);
         private MyStopwatch testingTimer = new MyStopwatch(DateTime.Now);
         private bool constructionTimerTicking = true;
+        public GameObject thePlayer;
+        public Transform theTarget;
+        
 
         // Start is called before the first frame update
         private void Start()
@@ -21,10 +24,12 @@ namespace GameController
         {
             if (constructionTimerTicking)
             {
+                
                 CheckConstructionTimer();
             }
             else
             {
+                
                 CheckTestingTimer();
             }
         }
@@ -70,7 +75,7 @@ namespace GameController
                 testingTimer.Stop();
                 Debug.LogFormat("Testing elapsed mm {0}", testingTimer.ElapsedMilliseconds);
                 Debug.Log("Time is up");
-                //TeleportToEndGameArea();
+                thePlayer.gameObject.transform.position = theTarget.transform.position; // teleportation
             }
         }
 
