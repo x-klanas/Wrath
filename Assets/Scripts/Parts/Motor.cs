@@ -141,6 +141,16 @@ namespace Parts {
             }
         }
 
+        private void Update() {
+            if (Input.GetKeyDown(KeyCode.KeypadEnter)) {
+                if (isOn) {
+                    TurnOff();
+                } else {
+                    TurnOn();
+                }
+            }
+        }
+
         public void TurnOn() {
             isOn = true;
             UpdateProperties();

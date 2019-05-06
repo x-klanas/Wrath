@@ -147,9 +147,9 @@ namespace Snapping {
         }
 
         private void UpdateProperties() {
-            ConfigurableJoint joint = snapPoint.SnappedJoint;
-
-            if (snapPoint.IsSnapped) {
+            if (snapPoint && snapPoint.IsSnapped) {
+                ConfigurableJoint joint = snapPoint.SnappedJoint;
+                
                 if (enableWhenSnapped && !snapPoint.IsSticky) {
                     joint.angularYMotion = joint.angularZMotion = ConfigurableJointMotion.Limited;
                     joint.angularXMotion = ConfigurableJointMotion.Free;
