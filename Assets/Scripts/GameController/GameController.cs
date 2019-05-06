@@ -15,8 +15,6 @@ namespace GameController
         public GameObject thePlayer;
         public Transform theTarget;
         public Text timerText;
-        public bool collider;
-        
 
         // Start is called before the first frame update
         private void Start()
@@ -51,7 +49,6 @@ namespace GameController
                         if (testingTimeSeconds <= 0)
                         {
                             CheckTestingTimer();
-                            testingTimeSeconds = testingTimeSeconds;
                         }
                     }
                 }
