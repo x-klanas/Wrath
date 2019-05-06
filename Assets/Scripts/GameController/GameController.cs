@@ -1,17 +1,21 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameController
 {
     public class GameController : MonoBehaviour
     {
-        public long constructionTime = 60;
-        public long testingTime = 60;
-        private MyStopwatch constructionTimer = new MyStopwatch(DateTime.Now);
-        private MyStopwatch testingTimer = new MyStopwatch(DateTime.Now);
-        private bool constructionTimerTicking = true;
+        public float constructionTimeSeconds;
+        public float testingTimeSeconds;
+        public MyStopwatch constructionTimer = new MyStopwatch(DateTime.Now);
+        public MyStopwatch testingTimer = new MyStopwatch(DateTime.Now);
+        public bool constructionTimerTicking = true;
+        public bool testingTimerTicking = true;
         public GameObject thePlayer;
         public Transform theTarget;
+        public Text timerText;
+        public bool collider;
         
 
         // Start is called before the first frame update
@@ -24,13 +28,33 @@ namespace GameController
         {
             if (constructionTimerTicking)
             {
-                
-                CheckConstructionTimer();
+                constructionTimeSeconds -= Time.deltaTime;
+                string minutes = Mathf.Floor((constructionTimeSeconds % 3600) / 60).ToString("00");
+                string seconds = (constructionTimeSeconds % 60).ToString("00");
+                timerText.text = minutes + ':' + seconds;
+                if (constructionTimeSeconds <= 0)
+                {
+                    
+                    CheckConstructionTimer();
+                    
+                }
             }
             else
             {
-                
-                CheckTestingTimer();
+                if (testingTimerTicking)
+                {
+                    {
+                        testingTimeSeconds -= Time.deltaTime;
+                        string minutes = Mathf.Floor((testingTimeSeconds % 3600) / 60).ToString("00");
+                        string seconds = (testingTimeSeconds % 60).ToString("00");
+                        timerText.text = minutes + ':' + seconds;
+                        if (testingTimeSeconds <= 0)
+                        {
+                            CheckTestingTimer();
+                            testingTimeSeconds = testingTimeSeconds;
+                        }
+                    }
+                }
             }
         }
 
@@ -50,16 +74,13 @@ namespace GameController
             constructionTimer.Start();
         }
         private void CheckConstructionTimer()
-        {
-            if (constructionTimer.IsRunning && constructionTimer.ElapsedMilliseconds >= constructionTime * 1000)
-            {
+        {          
                 constructionTimer.Stop();
                 Debug.LogFormat("Constr elapsed mm {0}", constructionTimer.ElapsedMilliseconds);
                 Debug.Log("Time is up");
                 StartTestingTimer();
                 constructionTimerTicking = false;
-              
-            }
+            
         }
 
         private void StartTestingTimer()
@@ -70,14 +91,22 @@ namespace GameController
 
         private void CheckTestingTimer()
         {
-            if (testingTimer.IsRunning && testingTimer.ElapsedMilliseconds >= testingTime * 1000)
-            {
                 testingTimer.Stop();
+                
                 Debug.LogFormat("Testing elapsed mm {0}", testingTimer.ElapsedMilliseconds);
                 Debug.Log("Time is up");
-                thePlayer.gameObject.transform.position = theTarget.transform.position; // teleportation
-            }
+                thePlayer.gameObject.transform.position = theTarget.transform.position; // teleportation  
+                testingTimerTicking = false;
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+                
+            {
+               Debug.Log("Entered"); 
+                testingTimerTicking = false;
+                constructionTimerTicking = false;
+            }
+        }
     }
 }
