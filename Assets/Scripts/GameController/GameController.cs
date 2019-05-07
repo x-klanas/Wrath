@@ -27,9 +27,9 @@ namespace GameController
             if (constructionTimerTicking)
             {
                 constructionTimeSeconds -= Time.deltaTime;
-                string minutes = Mathf.Floor((constructionTimeSeconds % 3600) / 60).ToString("00");
+                /*string minutes = Mathf.Floor((constructionTimeSeconds % 3600) / 60).ToString("00");
                 string seconds = (constructionTimeSeconds % 60).ToString("00");
-                timerText.text = minutes + ':' + seconds;
+                timerText.text = minutes + ':' + seconds;*/
                 if (constructionTimeSeconds <= 0)
                 {
                     
@@ -43,9 +43,9 @@ namespace GameController
                 {
                     {
                         testingTimeSeconds -= Time.deltaTime;
-                        string minutes = Mathf.Floor((testingTimeSeconds % 3600) / 60).ToString("00");
+                        /*string minutes = Mathf.Floor((testingTimeSeconds % 3600) / 60).ToString("00");
                         string seconds = (testingTimeSeconds % 60).ToString("00");
-                        timerText.text = minutes + ':' + seconds;
+                        timerText.text = minutes + ':' + seconds;*/
                         if (testingTimeSeconds <= 0)
                         {
                             CheckTestingTimer();
