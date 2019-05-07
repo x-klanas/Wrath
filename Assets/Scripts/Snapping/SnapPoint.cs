@@ -25,6 +25,9 @@ namespace Snapping {
         [Min(0)] public float rotationDamper = 10f;
         [Min(0)] public float rotationMaxForce = 100f;
 
+        [Min(0)] public float snapParentMassScale = 0f;
+        [Min(0)] public float snapChildMassScale = 1f;
+
         [Header("Sticky snap settings")] [Min(0)]
         public float stickyBreakDistance = 0f;
 
@@ -38,7 +41,13 @@ namespace Snapping {
         [Min(0)] public float stickyRotationDamper = 10f;
         [Min(0)] public float stickyRotationMaxForce = 100f;
 
-        [Header("Other settings")] public Snappable snappable;
+        [Min(0)] public float stickyParentMassScale = 1f;
+        [Min(0)] public float stickyChildMassScale = 1f;
+
+        [Header("Other settings")] public Vector3 axis = Vector3.right;
+        public Vector3 secondaryAxis = Vector3.up;
+        public Snappable snappable;
+        public Transform origin;
 
         public Rigidbody Rigidbody => snappable.rigidbody;
 
@@ -49,9 +58,20 @@ namespace Snapping {
         public ConfigurableJoint SnappedJoint { get; private set; }
         public SnapPoint SnappedPoint { get; private set; }
 
+        public delegate void OnSnapPointHandler(SnapPoint snapPoint);
+
+        public event OnSnapPointHandler OnSnap;
+        public event OnSnapPointHandler OnUnsnap;
+        public event OnSnapPointHandler OnStick;
+        public event OnSnapPointHandler OnUnstick;
+
         private void Start() {
             if (!snappable) {
                 snappable = GetComponentInParent<Snappable>();
+            }
+
+            if (!origin) {
+                origin = transform;
             }
 
             snappable.AddSnapPoint(this);
@@ -62,7 +82,7 @@ namespace Snapping {
                 float breakDistance = IsSticky ? stickyBreakDistance : snapBreakDistance;
 
                 if (breakDistance > 0) {
-                    float distance = Vector3.Distance(transform.position, SnappedPoint.transform.position);
+                    float distance = Vector3.Distance(origin.position, SnappedPoint.origin.position);
 
                     if (distance > breakDistance) {
                         Unstick();
@@ -105,19 +125,28 @@ namespace Snapping {
         }
 
         public void SnapTo(SnapPoint otherSnapPoint) {
-            Transform trans = transform;
             Transform rigidTrans = Rigidbody.transform;
             float otherMass = otherSnapPoint.Rigidbody.mass;
 
             SnappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
 
-            SnappedJoint.connectedBody = otherSnapPoint.Rigidbody;
-            SnappedJoint.autoConfigureConnectedAnchor = false;
-            SnappedJoint.anchor = rigidTrans.InverseTransformPoint(trans.position);
-            SnappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.transform.position);
-            SnappedJoint.enableCollision = true;
+            Quaternion targetRigidbodyRotation = GetTargetJointLocalRotation(otherSnapPoint);
+            Quaternion localRigidbodyRotation = rigidTrans.localRotation;
 
-            SnappedJoint.SetLocalTargetRotation(GetDesiredJointLocalRotation(otherSnapPoint), rigidTrans.localRotation);
+            rigidTrans.localRotation = targetRigidbodyRotation;
+            SnappedJoint.connectedBody = otherSnapPoint.Rigidbody;
+
+            SnappedJoint.autoConfigureConnectedAnchor = false;
+            SnappedJoint.anchor = rigidTrans.InverseTransformPoint(origin.position);
+            SnappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.origin.position);
+            SnappedJoint.axis = axis;
+            SnappedJoint.secondaryAxis = secondaryAxis;
+            SnappedJoint.enableCollision = true;
+            SnappedJoint.massScale = snapParentMassScale;
+            SnappedJoint.connectedMassScale = snapChildMassScale;
+
+            // ReSharper disable once Unity.InefficientPropertyAccess
+            rigidTrans.localRotation = localRigidbodyRotation;
 
             SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
                 positionSpring = positionSpring * otherMass,
@@ -142,11 +171,17 @@ namespace Snapping {
             otherSnapPoint.SnappedPoint = this;
             otherSnapPoint.SnappedJoint = SnappedJoint;
             otherSnapPoint.snappable.PointSnapped(otherSnapPoint);
+
+            OnSnap?.Invoke(this);
+            otherSnapPoint.OnSnap?.Invoke(otherSnapPoint);
         }
 
         public void Unsnap() {
             if (IsSnapped && !IsSticky && !SnappedPoint.IsSticky) {
                 if (IsSnapParent) {
+                    OnUnsnap?.Invoke(this);
+                    SnappedPoint.OnUnsnap?.Invoke(SnappedPoint);
+
                     Destroy(SnappedJoint);
 
                     IsSnapped = false;
@@ -173,6 +208,9 @@ namespace Snapping {
                     IsSticky = true;
                     SnappedPoint.IsSticky = true;
 
+                    SnappedJoint.massScale = stickyParentMassScale;
+                    SnappedJoint.connectedMassScale = stickyChildMassScale;
+
                     float otherMass = SnappedPoint.Rigidbody.mass;
 
                     SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
@@ -186,6 +224,9 @@ namespace Snapping {
                         positionDamper = stickyRotationDamper * otherMass,
                         maximumForce = stickyRotationMaxForce * otherMass
                     };
+
+                    OnStick?.Invoke(this);
+                    SnappedPoint.OnStick?.Invoke(SnappedPoint);
                 } else {
                     SnappedPoint.Stick();
                 }
@@ -197,6 +238,9 @@ namespace Snapping {
                 if (IsSnapParent) {
                     IsSticky = false;
                     SnappedPoint.IsSticky = false;
+
+                    SnappedJoint.massScale = snapParentMassScale;
+                    SnappedJoint.connectedMassScale = snapChildMassScale;
 
                     float otherMass = SnappedPoint.Rigidbody.mass;
 
@@ -211,28 +255,31 @@ namespace Snapping {
                         positionDamper = rotationDamper * otherMass,
                         maximumForce = rotationMaxForce * otherMass
                     };
+
+                    OnUnstick?.Invoke(this);
+                    SnappedPoint.OnUnstick?.Invoke(SnappedPoint);
                 } else {
                     SnappedPoint.Unstick();
                 }
             }
         }
 
-        public Quaternion GetDesiredJointLocalRotation(SnapPoint otherSnapPoint) {
+        public Quaternion GetTargetJointLocalRotation(SnapPoint otherSnapPoint) {
             Transform rigidTrans = Rigidbody.transform;
             Quaternion rigidbodyRotation = rigidTrans.rotation;
 
-            Quaternion relativeObjectAndOtherPointOrientation = Quaternion.Inverse(rigidbodyRotation) * otherSnapPoint.transform.rotation;
-            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(transform.rotation) * rigidbodyRotation;
+            Quaternion relativeObjectAndOtherPointOrientation = Quaternion.Inverse(rigidbodyRotation) * otherSnapPoint.origin.rotation;
+            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(origin.rotation) * rigidbodyRotation;
             Quaternion relativeRotatedPointAndObjectOrientation = relativeObjectAndOtherPointOrientation * Quaternion.Euler(otherSnapPoint.snappedRotation) * relativePointAndObjectOrientation;
 
             return rigidTrans.localRotation * relativeRotatedPointAndObjectOrientation;
         }
 
-        public Quaternion GetDesiredChildLocalRotation(SnapPoint otherSnapPoint) {
-            Quaternion rotation = transform.rotation;
+        public Quaternion GetTargetChildLocalRotation(SnapPoint otherSnapPoint) {
+            Quaternion rotation = origin.rotation;
             Transform rigidTrans = Rigidbody.transform;
 
-            Quaternion relativePointAndOtherPointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.transform.rotation;
+            Quaternion relativePointAndOtherPointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.origin.rotation;
             Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(rotation) * rigidTrans.rotation;
             Quaternion relativeOrientation = relativePointAndOtherPointOrientation * Quaternion.Euler(snappedRotation) * relativePointAndObjectOrientation;
 
