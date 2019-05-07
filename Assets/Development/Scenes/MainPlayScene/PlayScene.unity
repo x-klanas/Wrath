@@ -1337,6 +1337,21 @@ PrefabInstance:
       propertyPath: stickyTargetSpeed
       value: -20
       objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: isOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: stickyTargetTorque
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: stickyMaximumForce
+      value: 100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: acc38a403d2c7e24dba3f2df8bed38b9, type: 3}
 --- !u!1001 &481917913
@@ -5118,6 +5133,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: isOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: stickyTargetTorque
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630911679829668746, guid: acc38a403d2c7e24dba3f2df8bed38b9,
+        type: 3}
+      propertyPath: stickyMaximumForce
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: acc38a403d2c7e24dba3f2df8bed38b9, type: 3}
