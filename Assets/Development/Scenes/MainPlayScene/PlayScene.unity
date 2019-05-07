@@ -3381,7 +3381,6 @@ GameObject:
   - component: {fileID: 1424307688}
   - component: {fileID: 1424307691}
   - component: {fileID: 1424307690}
-  - component: {fileID: 1424307689}
   m_Layer: 5
   m_Name: Construction_Timer
   m_TagString: Untagged
@@ -3408,21 +3407,6 @@ RectTransform:
   m_AnchoredPosition: {x: 28, y: 3.4}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1424307689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1424307687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e16ba908771b534eb7ef27404240185, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timer: 0
-  gameControllerObj: {fileID: 6012746345189360969, guid: bc9f1e5f8c076d84185dcc3d41bea250,
-    type: 3}
 --- !u!114 &1424307690
 MonoBehaviour:
   m_ObjectHideFlags: 0
