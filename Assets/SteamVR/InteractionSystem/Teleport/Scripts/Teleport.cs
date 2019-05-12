@@ -43,6 +43,7 @@ namespace Valve.VR.InteractionSystem
 		public Transform onDeactivateObjectTransform;
 		public float activateObjectTime = 1.0f;
 		public float deactivateObjectTime = 1.0f;
+		public bool hapticFeedback = false;
 
 		[Header( "Audio Sources" )]
 		public AudioSource pointerAudioSource;
@@ -125,6 +126,7 @@ namespace Valve.VR.InteractionSystem
 
 		//-------------------------------------------------
 		private static Teleport _instance;
+
 		public static Teleport instance
 		{
 			get
@@ -793,7 +795,7 @@ namespace Valve.VR.InteractionSystem
 		//-------------------------------------------------
 		private void PlayPointerHaptic( bool validLocation )
 		{
-			if ( pointerHand != null )
+			if ( pointerHand != null && hapticFeedback )
 			{
 				if ( validLocation )
 				{
