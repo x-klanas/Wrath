@@ -42,3 +42,6 @@ sysinfo.txt
 
 # MacOS
 .DS_Store
+
+# SteamVR generated file(?) (for some reason it contains an absolute path to the actions.json file)
+unityProject.vrmanifest
