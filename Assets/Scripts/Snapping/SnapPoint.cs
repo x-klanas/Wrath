@@ -14,7 +14,10 @@ namespace Snapping {
 
         public Vector3 snappedRotation;
 
-        [Header("Snap settings")] [Min(0)] public float snapBreakDistance = 0f;
+        [Header("Snap settings")]
+        [Min(0)]
+        public float snapBreakDistance = 0f;
+
         public bool unsnapOnTriggerExit = true;
 
         [Min(0)] public float positionSpring = 1000f;
@@ -28,7 +31,8 @@ namespace Snapping {
         [Min(0)] public float snapParentMassScale = 0f;
         [Min(0)] public float snapChildMassScale = 1f;
 
-        [Header("Sticky snap settings")] [Min(0)]
+        [Header("Sticky snap settings")]
+        [Min(0)]
         public float stickyBreakDistance = 0f;
 
         public bool unsnapStickyOnTriggerExit = true;
@@ -44,7 +48,9 @@ namespace Snapping {
         [Min(0)] public float stickyParentMassScale = 1f;
         [Min(0)] public float stickyChildMassScale = 1f;
 
-        [Header("Other settings")] public Vector3 axis = Vector3.right;
+        [Header("Other settings")]
+        public Vector3 axis = Vector3.right;
+
         public Vector3 secondaryAxis = Vector3.up;
         public Snappable snappable;
         public Transform origin;
@@ -99,7 +105,7 @@ namespace Snapping {
 
             SnapPoint otherSnapPoint = other.GetComponent<SnapPoint>();
 
-            if (otherSnapPoint == null || !otherSnapPoint.snappable.canSnap || otherSnapPoint.IsSnapped
+            if (otherSnapPoint == null || !otherSnapPoint.snappable.CanSnap || otherSnapPoint.IsSnapped
                 || !snapFor.Any(f => otherSnapPoint.snapsTo.Contains(f))) {
                 return;
             }
@@ -126,7 +132,6 @@ namespace Snapping {
 
         public void SnapTo(SnapPoint otherSnapPoint) {
             Transform rigidTrans = Rigidbody.transform;
-            float otherMass = otherSnapPoint.Rigidbody.mass;
 
             SnappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
 
@@ -142,23 +147,9 @@ namespace Snapping {
             SnappedJoint.axis = axis;
             SnappedJoint.secondaryAxis = secondaryAxis;
             SnappedJoint.enableCollision = true;
-            SnappedJoint.massScale = snapParentMassScale;
-            SnappedJoint.connectedMassScale = snapChildMassScale;
 
             // ReSharper disable once Unity.InefficientPropertyAccess
             rigidTrans.localRotation = localRigidbodyRotation;
-
-            SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
-                positionSpring = positionSpring * otherMass,
-                positionDamper = positionDamper * otherMass,
-                maximumForce = positionMaxForce * otherMass
-            };
-
-            SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
-                positionSpring = rotationSpring * otherMass,
-                positionDamper = rotationDamper * otherMass,
-                maximumForce = rotationMaxForce * otherMass
-            };
 
             IsSnapped = true;
             IsSnapParent = true;
@@ -171,6 +162,8 @@ namespace Snapping {
             otherSnapPoint.SnappedPoint = this;
             otherSnapPoint.SnappedJoint = SnappedJoint;
             otherSnapPoint.snappable.PointSnapped(otherSnapPoint);
+
+            UpdateProperties();
 
             OnSnap?.Invoke(this);
             otherSnapPoint.OnSnap?.Invoke(otherSnapPoint);
@@ -208,22 +201,7 @@ namespace Snapping {
                     IsSticky = true;
                     SnappedPoint.IsSticky = true;
 
-                    SnappedJoint.massScale = stickyParentMassScale;
-                    SnappedJoint.connectedMassScale = stickyChildMassScale;
-
-                    float otherMass = SnappedPoint.Rigidbody.mass;
-
-                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
-                        positionSpring = stickyPositionSpring * otherMass,
-                        positionDamper = stickyPositionDamper * otherMass,
-                        maximumForce = stickyPositionMaxForce * otherMass
-                    };
-
-                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
-                        positionSpring = stickyRotationSpring * otherMass,
-                        positionDamper = stickyRotationDamper * otherMass,
-                        maximumForce = stickyRotationMaxForce * otherMass
-                    };
+                    UpdateProperties();
 
                     OnStick?.Invoke(this);
                     SnappedPoint.OnStick?.Invoke(SnappedPoint);
@@ -239,27 +217,70 @@ namespace Snapping {
                     IsSticky = false;
                     SnappedPoint.IsSticky = false;
 
-                    SnappedJoint.massScale = snapParentMassScale;
-                    SnappedJoint.connectedMassScale = snapChildMassScale;
-
-                    float otherMass = SnappedPoint.Rigidbody.mass;
-
-                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
-                        positionSpring = positionSpring * otherMass,
-                        positionDamper = positionDamper * otherMass,
-                        maximumForce = positionMaxForce * otherMass
-                    };
-
-                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
-                        positionSpring = rotationSpring * otherMass,
-                        positionDamper = rotationDamper * otherMass,
-                        maximumForce = rotationMaxForce * otherMass
-                    };
+                    UpdateProperties();
 
                     OnUnstick?.Invoke(this);
                     SnappedPoint.OnUnstick?.Invoke(SnappedPoint);
                 } else {
                     SnappedPoint.Unstick();
+                }
+            }
+        }
+
+        public void UpdateProperties() {
+            if (IsSnapped) {
+                if (IsSticky) {
+                    if (IsSnapParent) {
+                        SnappedJoint.massScale = stickyParentMassScale;
+                        SnappedJoint.connectedMassScale = stickyChildMassScale;
+
+                        float otherMass = SnappedPoint.Rigidbody.mass;
+
+                        SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                            positionSpring = stickyPositionSpring * otherMass,
+                            positionDamper = stickyPositionDamper * otherMass,
+                            maximumForce = stickyPositionMaxForce * otherMass
+                        };
+
+                        SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                            positionSpring = stickyRotationSpring * otherMass,
+                            positionDamper = stickyRotationDamper * otherMass,
+                            maximumForce = stickyRotationMaxForce * otherMass
+                        };
+                    }
+                } else {
+                    if (IsSnapParent) {
+                        SnappedJoint.massScale = snapParentMassScale;
+                        SnappedJoint.connectedMassScale = snapChildMassScale;
+
+                        float otherMass = SnappedPoint.Rigidbody.mass;
+
+                        SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                            positionSpring = positionSpring * otherMass,
+                            positionDamper = positionDamper * otherMass,
+                            maximumForce = positionMaxForce * otherMass
+                        };
+
+                        SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                            positionSpring = rotationSpring * otherMass,
+                            positionDamper = rotationDamper * otherMass,
+                            maximumForce = rotationMaxForce * otherMass
+                        };
+                    }
+                }
+
+                if (!IsSnapParent) {
+                    Transform rigidTrans = SnappedPoint.Rigidbody.transform;
+
+                    Quaternion targetRigidbodyRotation = SnappedPoint.GetTargetJointLocalRotation(this);
+                    Quaternion localRigidbodyRotation = rigidTrans.localRotation;
+
+                    SnappedJoint.connectedBody = null;
+                    rigidTrans.localRotation = targetRigidbodyRotation;
+                    // ReSharper disable once Unity.InefficientPropertyAccess
+                    SnappedJoint.connectedBody = Rigidbody;
+                    // ReSharper disable once Unity.InefficientPropertyAccess
+                    rigidTrans.localRotation = localRigidbodyRotation;
                 }
             }
         }

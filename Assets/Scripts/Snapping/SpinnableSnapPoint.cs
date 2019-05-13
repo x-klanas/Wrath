@@ -3,7 +3,9 @@ using UnityEngine;
 namespace Snapping {
     [RequireComponent(typeof(SnapPoint))]
     public class SpinnableSnapPoint : MonoBehaviour {
-        [Header("Snapped config")] public bool enableWhenSnapped = true;
+        [Header("Snapped config")]
+        [SerializeField]
+        private bool enableWhenSnapped = true;
 
         public bool EnableWhenSnapped {
             get => enableWhenSnapped;
@@ -21,7 +23,7 @@ namespace Snapping {
             }
         }
 
-        public float snapTargetSpeed;
+        [SerializeField] private float snapTargetSpeed;
 
         public float SnapTargetSpeed {
             get => snapTargetSpeed;
@@ -31,7 +33,7 @@ namespace Snapping {
             }
         }
 
-        public float snapTargetTorque;
+        [SerializeField] private float snapTargetTorque;
 
         public float SnapTargetTorque {
             get => snapTargetTorque;
@@ -41,7 +43,7 @@ namespace Snapping {
             }
         }
 
-        public float snapMaximumForce;
+        [SerializeField] private float snapMaximumForce;
 
         public float SnapMaximumForce {
             get => snapMaximumForce;
@@ -51,7 +53,9 @@ namespace Snapping {
             }
         }
 
-        [Header("Sticky config")] public bool enableWhenSticky = true;
+        [Header("Sticky config")]
+        [SerializeField]
+        private bool enableWhenSticky = true;
 
         public bool EnableWhenSticky {
             get => enableWhenSticky;
@@ -69,7 +73,7 @@ namespace Snapping {
             }
         }
 
-        public float stickyTargetSpeed;
+        [SerializeField] private float stickyTargetSpeed;
 
         public float StickyTargetSpeed {
             get => stickyTargetSpeed;
@@ -79,7 +83,7 @@ namespace Snapping {
             }
         }
 
-        public float stickyTargetTorque;
+        [SerializeField] private float stickyTargetTorque;
 
         public float StickyTargetTorque {
             get => stickyTargetTorque;
@@ -89,7 +93,7 @@ namespace Snapping {
             }
         }
 
-        public float stickyMaximumForce;
+        [SerializeField] private float stickyMaximumForce;
 
         public float StickyMaximumForce {
             get => stickyMaximumForce;
@@ -99,7 +103,8 @@ namespace Snapping {
             }
         }
 
-        [Header("Other settings")] public SnapPoint snapPoint;
+        [Header("Other settings")]
+        public SnapPoint snapPoint;
 
         private SpinnableOverridenProperties snapProperties;
         private SpinnableOverridenProperties stickyProperties;
@@ -149,7 +154,7 @@ namespace Snapping {
         private void UpdateProperties() {
             if (snapPoint && snapPoint.IsSnapped) {
                 ConfigurableJoint joint = snapPoint.SnappedJoint;
-                
+
                 if (enableWhenSnapped && !snapPoint.IsSticky) {
                     joint.angularYMotion = joint.angularZMotion = ConfigurableJointMotion.Limited;
                     joint.angularXMotion = ConfigurableJointMotion.Free;
