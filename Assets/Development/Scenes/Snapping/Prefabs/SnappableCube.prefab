@@ -126,8 +126,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rigidbody: {fileID: 0}
-  throwable: {fileID: 0}
+  steamVRThrowable: 1
   canSnap: 0
+  allowSticking: 0
 --- !u!114 &1906847498458765164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,34 +216,12 @@ MonoBehaviour:
   restoreOriginalParent: 0
   onPickUp:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8938865876461979231}
-        m_MethodName: SetCanSnap
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onDetachFromHand:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8938865876461979231}
-        m_MethodName: SetCanSnap
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   interactable: {fileID: 0}
@@ -305,7 +284,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 94f0d74d98b2b22418fb57a6d8114591, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -354,6 +333,28 @@ MonoBehaviour:
   - default
   snapFor:
   - default
-  snapBreakDistance: 0.3
   snappedRotation: {x: 0, y: 0, z: 180}
+  snapBreakDistance: 0
+  unsnapOnTriggerExit: 1
+  positionSpring: 1000
+  positionDamper: 100
+  positionMaxForce: 1000
+  rotationSpring: 100
+  rotationDamper: 10
+  rotationMaxForce: 100
+  snapParentMassScale: 0
+  snapChildMassScale: 1
+  stickyBreakDistance: 1
+  unsnapStickyOnTriggerExit: 0
+  stickyPositionSpring: 1000
+  stickyPositionDamper: 100
+  stickyPositionMaxForce: 1000
+  stickyRotationSpring: 100
+  stickyRotationDamper: 10
+  stickyRotationMaxForce: 100
+  stickyParentMassScale: 1
+  stickyChildMassScale: 1
+  axis: {x: 1, y: 0, z: 0}
+  secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
+  origin: {fileID: 0}
