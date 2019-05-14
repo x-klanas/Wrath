@@ -1352,7 +1352,7 @@ MonoBehaviour:
   axis: {x: 1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
-  origin: {fileID: 1795315788}
+  anchorPoint: {fileID: 1795315788}
 --- !u!1001 &1530204689
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1674,7 +1674,7 @@ MonoBehaviour:
   axis: {x: 1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
-  origin: {fileID: 398559795}
+  anchorPoint: {fileID: 398559795}
 --- !u!65 &1865172614
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2112,6 +2112,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3429272345823334484, guid: 37252cfbd1b0bc949b1aca3596c99817,
+        type: 3}
+      propertyPath: positionSpring
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 3429272345823334484, guid: 37252cfbd1b0bc949b1aca3596c99817,
+        type: 3}
+      propertyPath: positionDamper
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 3429272345823334484, guid: 37252cfbd1b0bc949b1aca3596c99817,
+        type: 3}
+      propertyPath: positionMaxForce
+      value: 450
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37252cfbd1b0bc949b1aca3596c99817, type: 3}

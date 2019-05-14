@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Snapping {
     [RequireComponent(typeof(Collider))]
@@ -53,7 +54,7 @@ namespace Snapping {
 
         public Vector3 secondaryAxis = Vector3.up;
         public Snappable snappable;
-        public Transform origin;
+        public Transform anchorPoint;
 
         public Rigidbody Rigidbody => snappable.rigidbody;
 
@@ -76,8 +77,8 @@ namespace Snapping {
                 snappable = GetComponentInParent<Snappable>();
             }
 
-            if (!origin) {
-                origin = transform;
+            if (!anchorPoint) {
+                anchorPoint = transform;
             }
 
             snappable.AddSnapPoint(this);
@@ -88,7 +89,7 @@ namespace Snapping {
                 float breakDistance = IsSticky ? stickyBreakDistance : snapBreakDistance;
 
                 if (breakDistance > 0) {
-                    float distance = Vector3.Distance(origin.position, SnappedPoint.origin.position);
+                    float distance = Vector3.Distance(anchorPoint.position, SnappedPoint.anchorPoint.position);
 
                     if (distance > breakDistance) {
                         Unstick();
@@ -135,21 +136,12 @@ namespace Snapping {
 
             SnappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
 
-            Quaternion targetRigidbodyRotation = GetTargetJointLocalRotation(otherSnapPoint);
-            Quaternion localRigidbodyRotation = rigidTrans.localRotation;
-
-            rigidTrans.localRotation = targetRigidbodyRotation;
-            SnappedJoint.connectedBody = otherSnapPoint.Rigidbody;
-
             SnappedJoint.autoConfigureConnectedAnchor = false;
-            SnappedJoint.anchor = rigidTrans.InverseTransformPoint(origin.position);
-            SnappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.origin.position);
+            SnappedJoint.anchor = rigidTrans.InverseTransformPoint(anchorPoint.position);
+            SnappedJoint.connectedAnchor = otherSnapPoint.Rigidbody.transform.InverseTransformPoint(otherSnapPoint.anchorPoint.position);
             SnappedJoint.axis = axis;
             SnappedJoint.secondaryAxis = secondaryAxis;
             SnappedJoint.enableCollision = true;
-
-            // ReSharper disable once Unity.InefficientPropertyAccess
-            rigidTrans.localRotation = localRigidbodyRotation;
 
             IsSnapped = true;
             IsSnapParent = true;
@@ -163,6 +155,7 @@ namespace Snapping {
             otherSnapPoint.SnappedJoint = SnappedJoint;
             otherSnapPoint.snappable.PointSnapped(otherSnapPoint);
 
+            UpdateRotation();
             UpdateProperties();
 
             OnSnap?.Invoke(this);
@@ -268,8 +261,24 @@ namespace Snapping {
                         };
                     }
                 }
+            }
+        }
 
-                if (!IsSnapParent) {
+        public void UpdateRotation() {
+            if (IsSnapped) {
+                if (IsSnapParent) {
+                    Transform rigidTrans = Rigidbody.transform;
+
+                    Quaternion targetRigidbodyRotation = GetTargetJointLocalRotation(SnappedPoint);
+                    Quaternion localRigidbodyRotation = rigidTrans.localRotation;
+
+                    SnappedJoint.connectedBody = null;
+                    rigidTrans.localRotation = targetRigidbodyRotation;
+                    // ReSharper disable once Unity.InefficientPropertyAccess
+                    SnappedJoint.connectedBody = SnappedPoint.Rigidbody;
+                    // ReSharper disable once Unity.InefficientPropertyAccess
+                    rigidTrans.localRotation = localRigidbodyRotation;
+                } else {
                     Transform rigidTrans = SnappedPoint.Rigidbody.transform;
 
                     Quaternion targetRigidbodyRotation = SnappedPoint.GetTargetJointLocalRotation(this);
@@ -285,22 +294,34 @@ namespace Snapping {
             }
         }
 
+        public void UpdateAnchorPosition() {
+            if (IsSnapped) {
+                if (IsSnapParent) {
+                    SnappedJoint.anchor = Rigidbody.transform.InverseTransformPoint(anchorPoint.position);
+                    SnappedJoint.connectedBody = SnappedJoint.connectedBody;
+                } else {
+                    SnappedJoint.connectedAnchor = Rigidbody.transform.InverseTransformPoint(anchorPoint.position);
+                    SnappedJoint.connectedBody = SnappedJoint.connectedBody;
+                }
+            }
+        }
+
         public Quaternion GetTargetJointLocalRotation(SnapPoint otherSnapPoint) {
             Transform rigidTrans = Rigidbody.transform;
             Quaternion rigidbodyRotation = rigidTrans.rotation;
 
-            Quaternion relativeObjectAndOtherPointOrientation = Quaternion.Inverse(rigidbodyRotation) * otherSnapPoint.origin.rotation;
-            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(origin.rotation) * rigidbodyRotation;
+            Quaternion relativeObjectAndOtherPointOrientation = Quaternion.Inverse(rigidbodyRotation) * otherSnapPoint.anchorPoint.rotation;
+            Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(anchorPoint.rotation) * rigidbodyRotation;
             Quaternion relativeRotatedPointAndObjectOrientation = relativeObjectAndOtherPointOrientation * Quaternion.Euler(otherSnapPoint.snappedRotation) * relativePointAndObjectOrientation;
 
             return rigidTrans.localRotation * relativeRotatedPointAndObjectOrientation;
         }
 
         public Quaternion GetTargetChildLocalRotation(SnapPoint otherSnapPoint) {
-            Quaternion rotation = origin.rotation;
+            Quaternion rotation = anchorPoint.rotation;
             Transform rigidTrans = Rigidbody.transform;
 
-            Quaternion relativePointAndOtherPointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.origin.rotation;
+            Quaternion relativePointAndOtherPointOrientation = Quaternion.Inverse(rotation) * otherSnapPoint.anchorPoint.rotation;
             Quaternion relativePointAndObjectOrientation = Quaternion.Inverse(rotation) * rigidTrans.rotation;
             Quaternion relativeOrientation = relativePointAndOtherPointOrientation * Quaternion.Euler(snappedRotation) * relativePointAndObjectOrientation;
 

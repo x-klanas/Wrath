@@ -131,7 +131,7 @@ MonoBehaviour:
   axis: {x: 1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
-  origin: {fileID: 0}
+  anchorPoint: {fileID: 0}
 --- !u!1 &9131560200828351690
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,9 +243,9 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
+  positionSpring: 100
+  positionDamper: 10
+  positionMaxForce: 100
   rotationSpring: 100
   rotationDamper: 10
   rotationMaxForce: 100
@@ -253,9 +253,9 @@ MonoBehaviour:
   snapChildMassScale: 1
   stickyBreakDistance: 0
   unsnapStickyOnTriggerExit: 1
-  stickyPositionSpring: 1000
-  stickyPositionDamper: 100
-  stickyPositionMaxForce: 1000
+  stickyPositionSpring: 100
+  stickyPositionDamper: 10
+  stickyPositionMaxForce: 100
   stickyRotationSpring: 100
   stickyRotationDamper: 10
   stickyRotationMaxForce: 100
@@ -264,7 +264,7 @@ MonoBehaviour:
   axis: {x: -1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
-  origin: {fileID: 0}
+  anchorPoint: {fileID: 0}
 --- !u!114 &9131560200828351687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -653,9 +653,9 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
+  positionSpring: 100
+  positionDamper: 10
+  positionMaxForce: 100
   rotationSpring: 100
   rotationDamper: 10
   rotationMaxForce: 100
@@ -674,7 +674,7 @@ MonoBehaviour:
   axis: {x: -1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
-  origin: {fileID: 0}
+  anchorPoint: {fileID: 0}
 --- !u!114 &9131560202120700238
 MonoBehaviour:
   m_ObjectHideFlags: 0
