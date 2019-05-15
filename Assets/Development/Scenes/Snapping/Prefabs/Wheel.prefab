@@ -284,6 +284,8 @@ MonoBehaviour:
       spring: 0
       damper: 0
       maxForce: 0
+  reinforcementStart: 0.5
+  reinforcementEnd: 1
   applyScrewSettings: 1
   reinforceableSnapPoint: {fileID: 8706552978005595146}
   screwSnapPoint: {fileID: 0}
@@ -447,6 +449,8 @@ MonoBehaviour:
       spring: 0
       damper: 0
       maxForce: 0
+  reinforcementStart: 0.5
+  reinforcementEnd: 1
   applyScrewSettings: 1
   reinforceableSnapPoint: {fileID: 8706552978005595146}
   screwSnapPoint: {fileID: 0}

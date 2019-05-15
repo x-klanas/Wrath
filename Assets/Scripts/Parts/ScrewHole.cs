@@ -6,6 +6,11 @@ namespace Parts {
     public class ScrewHole : MonoBehaviour {
         public FullSpringSettings spring = new FullSpringSettings();
 
+        [Range(0, 1)]
+        public float reinforcementStart = 0f;
+        [Range(0, 1)]
+        public float reinforcementEnd = 1f;
+        
         public bool applyScrewSettings = true;
 
         public ReinforceableSnapPoint reinforceableSnapPoint;
@@ -56,29 +61,31 @@ namespace Parts {
 
         private void UpdateProperties(float screwValue) {
             if (screw) {
+                float adjustedScrewValue = Mathf.Clamp01((screwValue - reinforcementStart) / (reinforcementEnd - reinforcementStart));
+                
                 appliedSpringSettings.position.Set(new SpringSettings(
-                    Mathf.Lerp(0, spring.position.spring, screwValue),
-                    Mathf.Lerp(0, spring.position.damper, screwValue),
-                    Mathf.Lerp(0, spring.position.maxForce, screwValue)
+                    Mathf.Lerp(0, spring.position.spring, adjustedScrewValue),
+                    Mathf.Lerp(0, spring.position.damper, adjustedScrewValue),
+                    Mathf.Lerp(0, spring.position.maxForce, adjustedScrewValue)
                 ));
 
                 appliedSpringSettings.rotation.Set(new SpringSettings(
-                    Mathf.Lerp(0, spring.rotation.spring, screwValue),
-                    Mathf.Lerp(0, spring.rotation.damper, screwValue),
-                    Mathf.Lerp(0, spring.rotation.maxForce, screwValue)
+                    Mathf.Lerp(0, spring.rotation.spring, adjustedScrewValue),
+                    Mathf.Lerp(0, spring.rotation.damper, adjustedScrewValue),
+                    Mathf.Lerp(0, spring.rotation.maxForce, adjustedScrewValue)
                 ));
 
                 if (applyScrewSettings) {
                     appliedSpringSettings.position.Add(new SpringSettings(
-                        Mathf.Lerp(0, screw.spring.position.spring, screwValue),
-                        Mathf.Lerp(0, screw.spring.position.damper, screwValue),
-                        Mathf.Lerp(0, screw.spring.position.maxForce, screwValue)
+                        Mathf.Lerp(0, screw.spring.position.spring, adjustedScrewValue),
+                        Mathf.Lerp(0, screw.spring.position.damper, adjustedScrewValue),
+                        Mathf.Lerp(0, screw.spring.position.maxForce, adjustedScrewValue)
                     ));
 
                     appliedSpringSettings.rotation.Add(new SpringSettings(
-                        Mathf.Lerp(0, screw.spring.rotation.spring, screwValue),
-                        Mathf.Lerp(0, screw.spring.rotation.damper, screwValue),
-                        Mathf.Lerp(0, screw.spring.rotation.maxForce, screwValue)
+                        Mathf.Lerp(0, screw.spring.rotation.spring, adjustedScrewValue),
+                        Mathf.Lerp(0, screw.spring.rotation.damper, adjustedScrewValue),
+                        Mathf.Lerp(0, screw.spring.rotation.maxForce, adjustedScrewValue)
                     ));
                 }
 

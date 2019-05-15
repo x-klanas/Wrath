@@ -22,8 +22,8 @@ namespace Snapping {
         }
 
         public FullSpringSettings Add(FullSpringSettings other) {
-            position += other.position;
-            rotation += other.rotation;
+            position.Add(other.position);
+            rotation.Add(other.rotation);
 
             return this;
         }
