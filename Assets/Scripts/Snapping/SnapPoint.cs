@@ -1,6 +1,5 @@
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Snapping {
     [RequireComponent(typeof(Collider))]
@@ -21,13 +20,10 @@ namespace Snapping {
 
         public bool unsnapOnTriggerExit = true;
 
-        [Min(0)] public float positionSpring = 1000f;
-        [Min(0)] public float positionDamper = 100f;
-        [Min(0)] public float positionMaxForce = 1000f;
-
-        [Min(0)] public float rotationSpring = 100f;
-        [Min(0)] public float rotationDamper = 10f;
-        [Min(0)] public float rotationMaxForce = 100f;
+        public FullSpringSettings spring = new FullSpringSettings(
+            new SpringSettings(1000f, 100f, 1000f),
+            new SpringSettings(100f, 10f, 100f)
+        );
 
         [Min(0)] public float snapParentMassScale = 0f;
         [Min(0)] public float snapChildMassScale = 1f;
@@ -38,13 +34,10 @@ namespace Snapping {
 
         public bool unsnapStickyOnTriggerExit = true;
 
-        [Min(0)] public float stickyPositionSpring = 1000f;
-        [Min(0)] public float stickyPositionDamper = 100f;
-        [Min(0)] public float stickyPositionMaxForce = 1000f;
-
-        [Min(0)] public float stickyRotationSpring = 100f;
-        [Min(0)] public float stickyRotationDamper = 10f;
-        [Min(0)] public float stickyRotationMaxForce = 100f;
+        public FullSpringSettings stickySpring = new FullSpringSettings(
+            new SpringSettings(1000f, 100f, 1000f),
+            new SpringSettings(100f, 10f, 100f)
+        );
 
         [Min(0)] public float stickyParentMassScale = 1f;
         [Min(0)] public float stickyChildMassScale = 1f;
@@ -65,14 +58,14 @@ namespace Snapping {
         public ConfigurableJoint SnappedJoint { get; private set; }
         public SnapPoint SnappedPoint { get; private set; }
 
-        public delegate void OnSnapPointHandler(SnapPoint snapPoint);
+        public delegate void OnSnapPointHandler();
 
         public event OnSnapPointHandler OnSnap;
         public event OnSnapPointHandler OnUnsnap;
         public event OnSnapPointHandler OnStick;
         public event OnSnapPointHandler OnUnstick;
 
-        private void Start() {
+        private void Awake() {
             if (!snappable) {
                 snappable = GetComponentInParent<Snappable>();
             }
@@ -80,7 +73,9 @@ namespace Snapping {
             if (!anchorPoint) {
                 anchorPoint = transform;
             }
+        }
 
+        private void Start() {
             snappable.AddSnapPoint(this);
         }
 
@@ -158,15 +153,15 @@ namespace Snapping {
             UpdateRotation();
             UpdateProperties();
 
-            OnSnap?.Invoke(this);
-            otherSnapPoint.OnSnap?.Invoke(otherSnapPoint);
+            OnSnap?.Invoke();
+            otherSnapPoint.OnSnap?.Invoke();
         }
 
         public void Unsnap() {
             if (IsSnapped && !IsSticky && !SnappedPoint.IsSticky) {
                 if (IsSnapParent) {
-                    OnUnsnap?.Invoke(this);
-                    SnappedPoint.OnUnsnap?.Invoke(SnappedPoint);
+                    OnUnsnap?.Invoke();
+                    SnappedPoint.OnUnsnap?.Invoke();
 
                     Destroy(SnappedJoint);
 
@@ -196,8 +191,8 @@ namespace Snapping {
 
                     UpdateProperties();
 
-                    OnStick?.Invoke(this);
-                    SnappedPoint.OnStick?.Invoke(SnappedPoint);
+                    OnStick?.Invoke();
+                    SnappedPoint.OnStick?.Invoke();
                 } else {
                     SnappedPoint.Stick();
                 }
@@ -212,8 +207,8 @@ namespace Snapping {
 
                     UpdateProperties();
 
-                    OnUnstick?.Invoke(this);
-                    SnappedPoint.OnUnstick?.Invoke(SnappedPoint);
+                    OnUnstick?.Invoke();
+                    SnappedPoint.OnUnstick?.Invoke();
                 } else {
                     SnappedPoint.Unstick();
                 }
@@ -221,45 +216,41 @@ namespace Snapping {
         }
 
         public void UpdateProperties() {
-            if (IsSnapped) {
+            if (IsSnapped && IsSnapParent) {
                 if (IsSticky) {
-                    if (IsSnapParent) {
-                        SnappedJoint.massScale = stickyParentMassScale;
-                        SnappedJoint.connectedMassScale = stickyChildMassScale;
+                    SnappedJoint.massScale = stickyParentMassScale;
+                    SnappedJoint.connectedMassScale = stickyChildMassScale;
 
-                        float otherMass = SnappedPoint.Rigidbody.mass;
+                    float otherMass = SnappedPoint.Rigidbody.mass;
 
-                        SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
-                            positionSpring = stickyPositionSpring * otherMass,
-                            positionDamper = stickyPositionDamper * otherMass,
-                            maximumForce = stickyPositionMaxForce * otherMass
-                        };
+                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                        positionSpring = stickySpring.position.spring * otherMass,
+                        positionDamper = stickySpring.position.damper * otherMass,
+                        maximumForce = stickySpring.position.maxForce * otherMass
+                    };
 
-                        SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
-                            positionSpring = stickyRotationSpring * otherMass,
-                            positionDamper = stickyRotationDamper * otherMass,
-                            maximumForce = stickyRotationMaxForce * otherMass
-                        };
-                    }
+                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                        positionSpring = stickySpring.rotation.spring * otherMass,
+                        positionDamper = stickySpring.rotation.damper * otherMass,
+                        maximumForce = stickySpring.rotation.maxForce * otherMass
+                    };
                 } else {
-                    if (IsSnapParent) {
-                        SnappedJoint.massScale = snapParentMassScale;
-                        SnappedJoint.connectedMassScale = snapChildMassScale;
+                    SnappedJoint.massScale = snapParentMassScale;
+                    SnappedJoint.connectedMassScale = snapChildMassScale;
 
-                        float otherMass = SnappedPoint.Rigidbody.mass;
+                    float otherMass = SnappedPoint.Rigidbody.mass;
 
-                        SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
-                            positionSpring = positionSpring * otherMass,
-                            positionDamper = positionDamper * otherMass,
-                            maximumForce = positionMaxForce * otherMass
-                        };
+                    SnappedJoint.xDrive = SnappedJoint.yDrive = SnappedJoint.zDrive = new JointDrive {
+                        positionSpring = spring.position.spring * otherMass,
+                        positionDamper = spring.position.damper * otherMass,
+                        maximumForce = spring.position.maxForce * otherMass
+                    };
 
-                        SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
-                            positionSpring = rotationSpring * otherMass,
-                            positionDamper = rotationDamper * otherMass,
-                            maximumForce = rotationMaxForce * otherMass
-                        };
-                    }
+                    SnappedJoint.angularXDrive = SnappedJoint.angularYZDrive = new JointDrive {
+                        positionSpring = spring.rotation.spring * otherMass,
+                        positionDamper = spring.rotation.damper * otherMass,
+                        maximumForce = spring.rotation.maxForce * otherMass
+                    };
                 }
             }
         }

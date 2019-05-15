@@ -109,46 +109,40 @@ namespace Snapping {
         private SpinnableOverridenProperties snapProperties;
         private SpinnableOverridenProperties stickyProperties;
 
-        private void Start() {
+        private void Awake() {
             if (snapPoint == null) {
                 snapPoint = GetComponent<SnapPoint>();
             }
+        }
 
+        private void Start() {
             snapPoint.OnSnap += OnSnap;
             snapPoint.OnUnsnap += OnUnsnap;
             snapPoint.OnStick += OnStick;
             snapPoint.OnUnstick += OnUnstick;
         }
 
-        private void OnSnap(SnapPoint snappedPoint) {
-            if (snappedPoint == snapPoint) {
-                if (enableWhenSnapped) {
-                    SaveProperties(snapPoint.SnappedJoint, snapProperties);
-                    UpdateProperties();
-                }
-            }
-        }
-
-        private void OnUnsnap(SnapPoint snappedPoint) {
-            if (snappedPoint == snapPoint) {
-                snapProperties.IsSaved = false;
-                stickyProperties.IsSaved = false;
-            }
-        }
-
-        private void OnStick(SnapPoint snappedPoint) {
-            if (snappedPoint == snapPoint) {
-                if (enableWhenSticky) {
-                    SaveProperties(snapPoint.SnappedJoint, stickyProperties);
-                    UpdateProperties();
-                }
-            }
-        }
-
-        private void OnUnstick(SnapPoint snappedPoint) {
-            if (snappedPoint == snapPoint) {
+        private void OnSnap() {
+            if (enableWhenSnapped) {
+                SaveProperties(snapPoint.SnappedJoint, snapProperties);
                 UpdateProperties();
             }
+        }
+
+        private void OnUnsnap() {
+            snapProperties.IsSaved = false;
+            stickyProperties.IsSaved = false;
+        }
+
+        private void OnStick() {
+            if (enableWhenSticky) {
+                SaveProperties(snapPoint.SnappedJoint, stickyProperties);
+                UpdateProperties();
+            }
+        }
+
+        private void OnUnstick() {
+            UpdateProperties();
         }
 
         private void UpdateProperties() {

@@ -47,11 +47,13 @@ namespace Snapping {
         private readonly List<SnapPoint> snapPoints = new List<SnapPoint>();
         private readonly List<SnapPoint> currentlySnappedPoints = new List<SnapPoint>();
 
-        private void Start() {
+        private void Awake() {
             if (rigidbody == null) {
                 rigidbody = GetComponent<Rigidbody>();
             }
+        }
 
+        private void Start() {
             if (steamVRThrowable) {
                 SteamVR_Actions.default_Interact.onStateDown += OnVRButtonDown;
             }
