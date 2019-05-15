@@ -111,22 +111,28 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
-  rotationSpring: 100
-  rotationDamper: 10
-  rotationMaxForce: 100
+  spring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   snapParentMassScale: 0
   snapChildMassScale: 1
   stickyBreakDistance: 0
   unsnapStickyOnTriggerExit: 1
-  stickyPositionSpring: 1000
-  stickyPositionDamper: 100
-  stickyPositionMaxForce: 1000
-  stickyRotationSpring: 100
-  stickyRotationDamper: 10
-  stickyRotationMaxForce: 100
+  stickySpring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   stickyParentMassScale: 1
   stickyChildMassScale: 1
   axis: {x: 1, y: 0, z: 0}
@@ -512,6 +518,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fef833b04ed2435985933b24b01bdb69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spring:
+    position:
+      spring: 450
+      damper: 45
+      maxForce: 450
+    rotation:
+      spring: 50
+      damper: 5
+      maxForce: 50
   screwValue: 0
   unscrewedAnchorPoint: {fileID: 5696336730603569989}
   screwedAnchorPoint: {fileID: 2037080643}

@@ -4,14 +4,11 @@ using UnityEngine;
 namespace Parts {
     [RequireComponent(typeof(Snappable))]
     public class Screw : MonoBehaviour {
-        public float positionSpring = 100f;
-        public float positionDamper = 10f;
-        public float positionMaxForce = 100f;
+        public FullSpringSettings spring = new FullSpringSettings(
+            new SpringSettings(100f, 10f, 100f),
+            new SpringSettings(50f, 5f, 50f)
+        );
 
-        public float rotationSpring = 50f;
-        public float rotationDamper = 5f;
-        public float rotationMaxForce = 50f;
-        
         [SerializeField]
         [Range(0, 1)]
         private float screwValue = 0f;
@@ -31,26 +28,27 @@ namespace Parts {
         public Collider[] collidersToDisable;
 
         public SnapPoint snapPoint;
-        
+
         public delegate void OnScrewValueHandler(float screwValue);
 
         public event OnScrewValueHandler OnScrewValue;
 
         private Transform anchor;
 
-        private void Start() {
+        private void Awake() {
             if (snapPoint == null) {
                 snapPoint = GetComponentInChildren<SnapPoint>();
             }
 
             anchor = new GameObject("screw anchor").transform;
             anchor.parent = transform;
+        }
 
+        private void Start() {
             snapPoint.anchorPoint = anchor;
+            snapPoint.OnUnsnap += OnUnsnap;
 
             UpdateProperties();
-
-            snapPoint.OnUnsnap += OnUnsnap;
         }
 
         private void Update() {
@@ -63,7 +61,7 @@ namespace Parts {
             }
         }
 
-        private void OnUnsnap(SnapPoint snappedPoint) {
+        private void OnUnsnap() {
             screwValue = 0f;
             UpdateProperties();
         }

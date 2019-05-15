@@ -4,110 +4,85 @@ using UnityEngine;
 namespace Parts {
     [RequireComponent(typeof(SnapPoint))]
     public class ScrewHole : MonoBehaviour {
-        public float positionSpring = 0f;
-        public float positionDamper = 0f;
-        public float positionMaxForce = 0f;
+        public FullSpringSettings spring = new FullSpringSettings();
 
-        public float rotationSpring = 0f;
-        public float rotationDamper = 0f;
-        public float rotationMaxForce = 0f;
-        
         public bool applyScrewSettings = true;
 
-        public SnapPoint reinforcedSnapPoint;
+        public ReinforceableSnapPoint reinforceableSnapPoint;
         public SnapPoint screwSnapPoint;
 
         private Screw screw;
-        private SnapPoint reinforceTarget;
+        private readonly FullSpringSettings appliedSpringSettings = new FullSpringSettings();
 
-        private float initialPositionSpring;
-        private float initialPositionDamper;
-        private float initialPositionMaxForce;
-
-        private float initialRotationSpring;
-        private float initialRotationDamper;
-        private float initialRotationMaxForce;
-
-        private void Start() {
+        private void Awake() {
             if (screwSnapPoint == null) {
                 screwSnapPoint = GetComponentInChildren<SnapPoint>();
             }
+        }
 
-            
-
+        private void Start() {
             screwSnapPoint.OnSnap += OnScrewSnap;
             screwSnapPoint.OnUnsnap += OnScrewUnsnap;
             screwSnapPoint.OnStick += OnScrewStick;
             screwSnapPoint.OnUnstick += OnScrewUnstick;
-
-            reinforcedSnapPoint.OnSnap += OnReinforceSnap;
-            reinforcedSnapPoint.OnUnsnap += OnReinforceUnsnap;
         }
 
-        private void OnReinforceSnap(SnapPoint snappedPoint) {
-            reinforceTarget = reinforcedSnapPoint.IsSnapParent ? reinforcedSnapPoint : reinforcedSnapPoint.SnappedPoint;
-            
-            initialPositionSpring = reinforceTarget.stickyPositionSpring;
-            initialPositionDamper = reinforceTarget.stickyPositionDamper;
-            initialPositionMaxForce = reinforceTarget.stickyPositionMaxForce;
-
-            initialRotationSpring = reinforceTarget.stickyRotationSpring;
-            initialRotationDamper = reinforceTarget.stickyRotationDamper;
-            initialRotationMaxForce = reinforceTarget.stickyRotationMaxForce;
-        }
-
-        private void OnReinforceUnsnap(SnapPoint snappedPoint) {
-            reinforceTarget.stickyPositionSpring = initialPositionSpring;
-            reinforceTarget.stickyPositionDamper = initialPositionDamper;
-            reinforceTarget.stickyPositionMaxForce = initialPositionMaxForce;
-
-            reinforceTarget.stickyRotationSpring = initialRotationSpring;
-            reinforceTarget.stickyRotationDamper = initialRotationDamper;
-            reinforceTarget.stickyRotationMaxForce = initialRotationMaxForce;
-        }
-
-        private void OnScrewSnap(SnapPoint snappedPoint) {
+        private void OnScrewSnap() {
             screw = screwSnapPoint.SnappedPoint.Rigidbody.GetComponentInChildren<Screw>();
+            appliedSpringSettings.Reset();
+            reinforceableSnapPoint.appliedSpringSettings.Add(appliedSpringSettings);
         }
 
-        private void OnScrewUnsnap(SnapPoint snappedPoint) {
+        private void OnScrewUnsnap() {
             screw = null;
+            reinforceableSnapPoint.appliedSpringSettings.Remove(appliedSpringSettings);
+            reinforceableSnapPoint.UpdateSpringSettings();
         }
 
-        private void OnScrewStick(SnapPoint snappedPoint) {
+        private void OnScrewStick() {
             if (screw) {
                 screw.OnScrewValue += UpdateProperties;
                 UpdateProperties(screw.ScrewValue);
             }
         }
 
-        private void OnScrewUnstick(SnapPoint snappedPoint) {
+        private void OnScrewUnstick() {
             if (screw) {
                 screw.OnScrewValue -= UpdateProperties;
+                appliedSpringSettings.Reset();
+                reinforceableSnapPoint.UpdateSpringSettings();
             }
         }
 
         private void UpdateProperties(float screwValue) {
-            if (screw && reinforcedSnapPoint.IsSnapped) {
-                reinforceTarget.stickyPositionSpring = initialPositionSpring + Mathf.Lerp(0, positionSpring, screwValue);
-                reinforceTarget.stickyPositionDamper = initialPositionDamper + Mathf.Lerp(0, positionDamper, screwValue);
-                reinforceTarget.stickyPositionMaxForce = initialPositionMaxForce + Mathf.Lerp(0, positionMaxForce, screwValue);
+            if (screw) {
+                appliedSpringSettings.position.Set(new SpringSettings(
+                    Mathf.Lerp(0, spring.position.spring, screwValue),
+                    Mathf.Lerp(0, spring.position.damper, screwValue),
+                    Mathf.Lerp(0, spring.position.maxForce, screwValue)
+                ));
 
-                reinforceTarget.stickyRotationSpring = initialRotationSpring + Mathf.Lerp(0, rotationSpring, screwValue);
-                reinforceTarget.stickyRotationDamper = initialRotationDamper + Mathf.Lerp(0, rotationDamper, screwValue);
-                reinforceTarget.stickyRotationMaxForce = initialRotationMaxForce + Mathf.Lerp(0, rotationMaxForce, screwValue);
+                appliedSpringSettings.rotation.Set(new SpringSettings(
+                    Mathf.Lerp(0, spring.rotation.spring, screwValue),
+                    Mathf.Lerp(0, spring.rotation.damper, screwValue),
+                    Mathf.Lerp(0, spring.rotation.maxForce, screwValue)
+                ));
 
                 if (applyScrewSettings) {
-                    reinforceTarget.stickyPositionSpring += Mathf.Lerp(0, screw.positionSpring, screwValue);
-                    reinforceTarget.stickyPositionDamper += Mathf.Lerp(0, screw.positionDamper, screwValue);
-                    reinforceTarget.stickyPositionMaxForce += Mathf.Lerp(0, screw.positionMaxForce, screwValue);
+                    appliedSpringSettings.position.Add(new SpringSettings(
+                        Mathf.Lerp(0, screw.spring.position.spring, screwValue),
+                        Mathf.Lerp(0, screw.spring.position.damper, screwValue),
+                        Mathf.Lerp(0, screw.spring.position.maxForce, screwValue)
+                    ));
 
-                    reinforceTarget.stickyRotationSpring += Mathf.Lerp(0, screw.rotationSpring, screwValue);
-                    reinforceTarget.stickyRotationDamper += Mathf.Lerp(0, screw.rotationDamper, screwValue);
-                    reinforceTarget.stickyRotationMaxForce += Mathf.Lerp(0, screw.rotationMaxForce, screwValue);
+                    appliedSpringSettings.rotation.Add(new SpringSettings(
+                        Mathf.Lerp(0, screw.spring.rotation.spring, screwValue),
+                        Mathf.Lerp(0, screw.spring.rotation.damper, screwValue),
+                        Mathf.Lerp(0, screw.spring.rotation.maxForce, screwValue)
+                    ));
                 }
 
-                reinforceTarget.UpdateProperties();
+                reinforceableSnapPoint.UpdateSpringSettings();
             }
         }
     }

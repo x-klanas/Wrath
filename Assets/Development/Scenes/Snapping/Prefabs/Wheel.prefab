@@ -235,22 +235,28 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
-  rotationSpring: 100
-  rotationDamper: 10
-  rotationMaxForce: 100
+  spring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   snapParentMassScale: 0
   snapChildMassScale: 1
   stickyBreakDistance: 0
   unsnapStickyOnTriggerExit: 1
-  stickyPositionSpring: 1000
-  stickyPositionDamper: 100
-  stickyPositionMaxForce: 1000
-  stickyRotationSpring: 100
-  stickyRotationDamper: 10
-  stickyRotationMaxForce: 100
+  stickySpring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   stickyParentMassScale: 1
   stickyChildMassScale: 1
   axis: {x: 1, y: 0, z: 0}
@@ -269,14 +275,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70bbcff3f2204e57be59c7fbbaa602e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spring:
+    position:
+      spring: 0
+      damper: 0
+      maxForce: 0
+    rotation:
+      spring: 0
+      damper: 0
+      maxForce: 0
   applyScrewSettings: 1
-  positionSpring: 0
-  positionDamper: 0
-  positionMaxForce: 0
-  rotationSpring: 0
-  rotationDamper: 0
-  rotationMaxForce: 0
-  reinforcedSnapPoint: {fileID: 6459400070988422471}
+  reinforceableSnapPoint: {fileID: 8706552978005595146}
   screwSnapPoint: {fileID: 0}
 --- !u!1 &4652683353360614517
 GameObject:
@@ -389,22 +398,28 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
-  rotationSpring: 100
-  rotationDamper: 10
-  rotationMaxForce: 100
+  spring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   snapParentMassScale: 0
   snapChildMassScale: 1
   stickyBreakDistance: 0
   unsnapStickyOnTriggerExit: 1
-  stickyPositionSpring: 1000
-  stickyPositionDamper: 100
-  stickyPositionMaxForce: 1000
-  stickyRotationSpring: 100
-  stickyRotationDamper: 10
-  stickyRotationMaxForce: 100
+  stickySpring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   stickyParentMassScale: 1
   stickyChildMassScale: 1
   axis: {x: 1, y: 0, z: 0}
@@ -423,14 +438,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70bbcff3f2204e57be59c7fbbaa602e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spring:
+    position:
+      spring: 0
+      damper: 0
+      maxForce: 0
+    rotation:
+      spring: 0
+      damper: 0
+      maxForce: 0
   applyScrewSettings: 1
-  positionSpring: 0
-  positionDamper: 0
-  positionMaxForce: 0
-  rotationSpring: 0
-  rotationDamper: 0
-  rotationMaxForce: 0
-  reinforcedSnapPoint: {fileID: 6459400070988422471}
+  reinforceableSnapPoint: {fileID: 8706552978005595146}
   screwSnapPoint: {fileID: 0}
 --- !u!1 &6459400070988422488
 GameObject:
@@ -445,6 +463,7 @@ GameObject:
   - component: {fileID: 6459400070988422469}
   - component: {fileID: 6459400070988422490}
   - component: {fileID: 6459400070988422471}
+  - component: {fileID: 8706552978005595146}
   m_Layer: 0
   m_Name: SnapPoint
   m_TagString: Untagged
@@ -542,28 +561,49 @@ MonoBehaviour:
   snappedRotation: {x: 0, y: 0, z: 0}
   snapBreakDistance: 0
   unsnapOnTriggerExit: 1
-  positionSpring: 1000
-  positionDamper: 100
-  positionMaxForce: 1000
-  rotationSpring: 100
-  rotationDamper: 10
-  rotationMaxForce: 100
+  spring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   snapParentMassScale: 0
   snapChildMassScale: 1
   stickyBreakDistance: 0
   unsnapStickyOnTriggerExit: 1
-  stickyPositionSpring: 1000
-  stickyPositionDamper: 100
-  stickyPositionMaxForce: 1000
-  stickyRotationSpring: 100
-  stickyRotationDamper: 10
-  stickyRotationMaxForce: 100
+  stickySpring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 100
+      damper: 10
+      maxForce: 100
   stickyParentMassScale: 1
   stickyChildMassScale: 1
   axis: {x: 1, y: 0, z: 0}
   secondaryAxis: {x: 0, y: 1, z: 0}
   snappable: {fileID: 0}
   anchorPoint: {fileID: 0}
+--- !u!114 &8706552978005595146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6459400070988422488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 836469999b094b3693f50c6fac1ac319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  applyToOther: 1
+  appliedSpringSettings: []
+  snapPoint: {fileID: 0}
 --- !u!1 &6459400071093230572
 GameObject:
   m_ObjectHideFlags: 0
