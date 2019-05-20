@@ -22,6 +22,9 @@ namespace Parts {
             }
         }
 
+        [Range(0, 1)]
+        public float unstickThreshold = 0.05f;
+
         public Transform unscrewedAnchorPoint;
         public Transform screwedAnchorPoint;
 
@@ -46,7 +49,8 @@ namespace Parts {
 
         private void Start() {
             snapPoint.anchorPoint = anchor;
-            snapPoint.OnUnsnap += OnUnsnap;
+            snapPoint.OnUnstick += OnUnstick;
+            snapPoint.OnPreUnstick += OnPreUnstick;
 
             UpdateProperties();
         }
@@ -61,9 +65,15 @@ namespace Parts {
             }
         }
 
-        private void OnUnsnap() {
+        private void OnUnstick() {
             screwValue = 0f;
             UpdateProperties();
+        }
+        
+        private void OnPreUnstick(SnapPoint.PreSnapPointEvent preSnapPointEvent) {
+            if (screwValue > unstickThreshold) {
+                preSnapPointEvent.Cancel();
+            }
         }
 
         public void UpdateProperties() {

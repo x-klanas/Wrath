@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -65,6 +66,41 @@ namespace Snapping {
         public event OnSnapPointHandler OnStick;
         public event OnSnapPointHandler OnUnstick;
 
+        public class PreSnapPointEvent {
+            public bool Canceled { get; private set; }
+            public void Cancel() => Canceled = true;
+        }
+
+        public delegate void OnPreSnapPointHandler(PreSnapPointEvent preSnapPointEvent);
+
+        private readonly List<OnPreSnapPointHandler> onPreSnap = new List<OnPreSnapPointHandler>();
+
+        public event OnPreSnapPointHandler OnPreSnap {
+            add => onPreSnap.Add(value);
+            remove => onPreSnap.Remove(value);
+        }
+
+        private readonly List<OnPreSnapPointHandler> onPreUnsnap = new List<OnPreSnapPointHandler>();
+
+        public event OnPreSnapPointHandler OnPreUnsnap {
+            add => onPreUnsnap.Add(value);
+            remove => onPreUnsnap.Remove(value);
+        }
+
+        private readonly List<OnPreSnapPointHandler> onPreStick = new List<OnPreSnapPointHandler>();
+
+        public event OnPreSnapPointHandler OnPreStick {
+            add => onPreStick.Add(value);
+            remove => onPreStick.Remove(value);
+        }
+
+        private readonly List<OnPreSnapPointHandler> onPreUnstick = new List<OnPreSnapPointHandler>();
+
+        public event OnPreSnapPointHandler OnPreUnstick {
+            add => onPreUnstick.Add(value);
+            remove => onPreUnstick.Remove(value);
+        }
+
         private void Awake() {
             if (!snappable) {
                 snappable = GetComponentInParent<Snappable>();
@@ -127,6 +163,10 @@ namespace Snapping {
         }
 
         public void SnapTo(SnapPoint otherSnapPoint) {
+            if (!CheckPreSnapPointEvent(onPreSnap) || !CheckPreSnapPointEvent(otherSnapPoint.onPreSnap)) {
+                return;
+            }
+
             Transform rigidTrans = Rigidbody.transform;
 
             SnappedJoint = Rigidbody.gameObject.AddComponent<ConfigurableJoint>();
@@ -159,6 +199,10 @@ namespace Snapping {
 
         public void Unsnap() {
             if (IsSnapped && !IsSticky && !SnappedPoint.IsSticky) {
+                if (!CheckPreSnapPointEvent(onPreUnsnap) || !CheckPreSnapPointEvent(SnappedPoint.onPreUnsnap)) {
+                    return;
+                }
+
                 if (IsSnapParent) {
                     OnUnsnap?.Invoke();
                     SnappedPoint.OnUnsnap?.Invoke();
@@ -185,6 +229,10 @@ namespace Snapping {
 
         public void Stick() {
             if (IsSnapped && (!IsSticky || !SnappedPoint.IsSticky)) {
+                if (!CheckPreSnapPointEvent(onPreStick) || !CheckPreSnapPointEvent(SnappedPoint.onPreStick)) {
+                    return;
+                }
+
                 if (IsSnapParent) {
                     IsSticky = true;
                     SnappedPoint.IsSticky = true;
@@ -201,6 +249,10 @@ namespace Snapping {
 
         public void Unstick() {
             if (IsSnapped && (IsSticky || SnappedPoint.IsSticky)) {
+                if (!CheckPreSnapPointEvent(onPreUnstick) || !CheckPreSnapPointEvent(SnappedPoint.onPreUnstick)) {
+                    return;
+                }
+
                 if (IsSnapParent) {
                     IsSticky = false;
                     SnappedPoint.IsSticky = false;
@@ -317,6 +369,20 @@ namespace Snapping {
             Quaternion relativeOrientation = relativePointAndOtherPointOrientation * Quaternion.Euler(snappedRotation) * relativePointAndObjectOrientation;
 
             return rigidTrans.localRotation * relativeOrientation;
+        }
+
+        private bool CheckPreSnapPointEvent(IEnumerable<OnPreSnapPointHandler> handlers) {
+            PreSnapPointEvent preSnapPointEvent = new PreSnapPointEvent();
+
+            foreach (OnPreSnapPointHandler handler in handlers) {
+                handler(preSnapPointEvent);
+
+                if (preSnapPointEvent.Canceled) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

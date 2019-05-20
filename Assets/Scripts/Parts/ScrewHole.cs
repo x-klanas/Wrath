@@ -30,6 +30,16 @@ namespace Parts {
             screwSnapPoint.OnUnsnap += OnScrewUnsnap;
             screwSnapPoint.OnStick += OnScrewStick;
             screwSnapPoint.OnUnstick += OnScrewUnstick;
+
+            reinforceableSnapPoint.snapPoint.OnPreSnap += CancelOnSnapPoint;
+            reinforceableSnapPoint.snapPoint.OnPreStick += CancelOnSnapPoint;
+            reinforceableSnapPoint.snapPoint.OnPreUnstick += CancelOnSnapPoint;
+        }
+
+        private void CancelOnSnapPoint(SnapPoint.PreSnapPointEvent preSnapPointEvent) {
+            if (screw && screw.ScrewValue > reinforcementStart) {
+                preSnapPointEvent.Cancel();
+            }
         }
 
         private void OnScrewSnap() {
@@ -61,7 +71,7 @@ namespace Parts {
 
         private void UpdateProperties(float screwValue) {
             if (screw) {
-                float adjustedScrewValue = Mathf.Clamp01((screwValue - reinforcementStart) / (reinforcementEnd - reinforcementStart));
+                float adjustedScrewValue = GetAdjustedScrewValue(screwValue);
                 
                 appliedSpringSettings.position.Set(new SpringSettings(
                     Mathf.Lerp(0, spring.position.spring, adjustedScrewValue),
@@ -91,6 +101,10 @@ namespace Parts {
 
                 reinforceableSnapPoint.UpdateSpringSettings();
             }
+        }
+
+        private float GetAdjustedScrewValue(float screwValue) {
+            return Mathf.Clamp01((screwValue - reinforcementStart) / (reinforcementEnd - reinforcementStart));
         }
     }
 }
