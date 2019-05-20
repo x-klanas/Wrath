@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using Valve.VR;
 
 namespace Menu {
     public class InGame_Menu : MonoBehaviour
@@ -11,6 +13,11 @@ namespace Menu {
         public Transform theTarget; //teleportation target
 
         public string mainMenuSceneName;
+
+        private void Awake()
+        {
+            SteamVR_Actions.default_Pause.onStateDown += (action, source) => OnPauseButton();
+        }
 
         public void RestartButton()
         {
@@ -34,18 +41,23 @@ namespace Menu {
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (canvas.gameObject.activeInHierarchy == false)
-                {
-                    canvas.gameObject.SetActive(true);
-                    Time.timeScale = 0;
-                    TeleportIntoMenu();
-                }
-                else
-                {
-                    canvas.gameObject.SetActive(false);
-                    TeleportBackFromMenu();
-                    Time.timeScale = 1;
-                }
+                OnPauseButton();
+            }
+        }
+
+        private void OnPauseButton()
+        {
+            if (canvas.gameObject.activeInHierarchy == false)
+            {
+                canvas.gameObject.SetActive(true);
+                Time.timeScale = 0;
+                TeleportIntoMenu();
+            }
+            else
+            {
+                canvas.gameObject.SetActive(false);
+                TeleportBackFromMenu();
+                Time.timeScale = 1;
             }
         }
 
