@@ -9,7 +9,9 @@ namespace Parts {
 
         public bool isOn;
 
-        [Header("Snapped config")] public bool enableWhenSnapped = false;
+        [Header("Snapped config")]
+        [SerializeField]
+        private bool enableWhenSnapped = false;
 
         public bool EnableWhenSnapped {
             get => enableWhenSnapped;
@@ -19,7 +21,7 @@ namespace Parts {
             }
         }
 
-        public float snapTargetSpeed;
+        [SerializeField] private float snapTargetSpeed;
 
         public float SnapTargetSpeed {
             get => snapTargetSpeed;
@@ -29,7 +31,7 @@ namespace Parts {
             }
         }
 
-        public float snapTargetTorque;
+        [SerializeField] private float snapTargetTorque;
 
         public float SnapTargetTorque {
             get => snapTargetTorque;
@@ -39,7 +41,7 @@ namespace Parts {
             }
         }
 
-        public float snapMaximumForce;
+        [SerializeField] private float snapMaximumForce;
 
         public float SnapMaximumForce {
             get => snapMaximumForce;
@@ -49,7 +51,7 @@ namespace Parts {
             }
         }
 
-        public float snapBreakingTorque;
+        [SerializeField] private float snapBreakingTorque;
 
         public float SnapBreakingTorque {
             get => snapBreakingTorque;
@@ -59,7 +61,7 @@ namespace Parts {
             }
         }
 
-        public float snapBreakingMaxForce;
+        [SerializeField] private float snapBreakingMaxForce;
 
         public float SnapBreakingMaxForce {
             get => snapBreakingMaxForce;
@@ -69,7 +71,9 @@ namespace Parts {
             }
         }
 
-        [Header("Sticky config")] public bool enableWhenSticky = true;
+        [Header("Sticky config")]
+        [SerializeField]
+        private bool enableWhenSticky = true;
 
         public bool EnableWhenSticky {
             get => enableWhenSticky;
@@ -79,7 +83,7 @@ namespace Parts {
             }
         }
 
-        public float stickyTargetSpeed = 10f;
+        [SerializeField] private float stickyTargetSpeed = 10f;
 
         public float StickyTargetSpeed {
             get => stickyTargetSpeed;
@@ -89,7 +93,7 @@ namespace Parts {
             }
         }
 
-        public float stickyTargetTorque = 5f;
+        [SerializeField] private float stickyTargetTorque = 5f;
 
         public float StickyTargetTorque {
             get => stickyTargetTorque;
@@ -99,7 +103,7 @@ namespace Parts {
             }
         }
 
-        public float stickyMaximumForce = 10f;
+        [SerializeField] private float stickyMaximumForce = 10f;
 
         public float StickyMaximumForce {
             get => stickyMaximumForce;
@@ -109,7 +113,7 @@ namespace Parts {
             }
         }
 
-        public float stickyBreakingTorque;
+        [SerializeField] private float stickyBreakingTorque;
 
         public float StickyBreakingTorque {
             get => stickyBreakingTorque;
@@ -119,7 +123,7 @@ namespace Parts {
             }
         }
 
-        public float stickyBreakingMaxForce;
+        [SerializeField] private float stickyBreakingMaxForce;
 
         public float StickyBreakingMaxForce {
             get => stickyBreakingMaxForce;

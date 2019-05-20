@@ -7,7 +7,7 @@ namespace Snapping {
     public class Snappable : MonoBehaviour {
         public new Rigidbody rigidbody;
 
-        public bool steamVRThrowable = true;
+        [SerializeField] private bool steamVRThrowable = true;
 
         public bool SteamVRThrowable {
             get => steamVRThrowable;
@@ -22,7 +22,7 @@ namespace Snapping {
             }
         }
 
-        public bool canSnap;
+        [SerializeField] private bool canSnap;
 
         public bool CanSnap {
             get => canSnap;
@@ -35,7 +35,7 @@ namespace Snapping {
             }
         }
 
-        public bool allowSticking;
+        [SerializeField] private bool allowSticking;
 
         public bool AllowSticking {
             get => allowSticking;
@@ -47,11 +47,13 @@ namespace Snapping {
         private readonly List<SnapPoint> snapPoints = new List<SnapPoint>();
         private readonly List<SnapPoint> currentlySnappedPoints = new List<SnapPoint>();
 
-        private void Start() {
+        private void Awake() {
             if (rigidbody == null) {
                 rigidbody = GetComponent<Rigidbody>();
             }
+        }
 
+        private void Start() {
             if (steamVRThrowable) {
                 SteamVR_Actions.default_Interact.onStateDown += OnVRButtonDown;
             }
