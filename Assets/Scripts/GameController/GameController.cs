@@ -1,4 +1,5 @@
 ﻿using System;
+using Parts;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,8 @@ namespace GameController
         public GameObject thePlayer;
         public Transform theTarget;
         public Text timerText;
+        public Motor[] Engines;
+
 
         // Start is called before the first frame update
         private void Start()
@@ -56,7 +59,36 @@ namespace GameController
         }
 
 
-
+        public void StartTestingButton()
+        {
+            foreach (var engine in Engines)
+            {
+                if (!engine.isOn)
+                {
+                    engine.TurnOn();
+                }
+            }
+            StartTestingTimer();
+            constructionTimerTicking = false;
+            
+            if (testingTimerTicking)
+            {
+                {
+                    testingTimeSeconds -= Time.deltaTime;
+                    /*string minutes = Mathf.Floor((testingTimeSeconds % 3600) / 60).ToString("00");
+                    string seconds = (testingTimeSeconds % 60).ToString("00");
+                    timerText.text = minutes + ':' + seconds;*/
+                    if (testingTimeSeconds <= 0)
+                    {
+                        testingTimer.Stop();
+                        Debug.LogFormat("Testing elapsed mm {0}", testingTimer.ElapsedMilliseconds);
+                        Debug.Log("Time is up");
+                        testingTimerTicking = false;
+                    }
+                }
+            }
+            
+        }
         private void StartConstructionTimer()
         {
             constructionTimer.Reset();
