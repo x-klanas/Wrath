@@ -1,28 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 namespace Snapping {
-    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Rigidbody), typeof(Interactable))]
     public class Snappable : MonoBehaviour {
         public new Rigidbody rigidbody;
 
-        public bool steamVRThrowable = true;
-
-        public bool SteamVRThrowable {
-            get => steamVRThrowable;
-            set {
-                steamVRThrowable = value;
-
-                if (steamVRThrowable) {
-                    SteamVR_Actions.default_Interact.onStateDown += OnVRButtonDown;
-                } else {
-                    SteamVR_Actions.default_Interact.onStateDown -= OnVRButtonDown;
-                }
-            }
-        }
-
-        public bool canSnap;
+        [SerializeField] private bool canSnap;
 
         public bool CanSnap {
             get => canSnap;
@@ -35,7 +21,7 @@ namespace Snapping {
             }
         }
 
-        public bool allowSticking;
+        [SerializeField] private bool allowSticking;
 
         public bool AllowSticking {
             get => allowSticking;
@@ -44,17 +30,43 @@ namespace Snapping {
 
         public bool IsSnapped => currentlySnappedPoints.Count > 0;
 
+        [Header("SteamVR specific settings")]
+        public bool steamVRThrowable = true;
+
+        public bool noHandCanSnap = false;
+        public bool noHandAllowSticking = false;
+
+        public bool handCanSnap = true;
+        public bool handAllowSticking = true;
+
+        public Interactable interactable;
+
         private readonly List<SnapPoint> snapPoints = new List<SnapPoint>();
         private readonly List<SnapPoint> currentlySnappedPoints = new List<SnapPoint>();
 
-        private void Start() {
+        private void Awake() {
             if (rigidbody == null) {
                 rigidbody = GetComponent<Rigidbody>();
             }
 
-            if (steamVRThrowable) {
-                SteamVR_Actions.default_Interact.onStateDown += OnVRButtonDown;
+            if (interactable == null) {
+                interactable = GetComponent<Interactable>();
             }
+        }
+
+        private void Start() {
+            if (steamVRThrowable) {
+                interactable.onAttachedToHand += OnHandAttach;
+                interactable.onDetachedFromHand += OnHandDetach;
+            }
+        }
+
+        private void OnHandAttach(Hand hand) {
+            SteamVR_Actions.default_Interact.AddOnStateDownListener(OnVRButtonDown, hand.handType);
+        }
+
+        private void OnHandDetach(Hand hand) {
+            SteamVR_Actions.default_Interact.RemoveOnStateDownListener(OnVRButtonDown, hand.handType);
         }
 
         private void OnVRButtonDown(SteamVR_Action_Boolean action, SteamVR_Input_Sources source) {
@@ -100,16 +112,16 @@ namespace Snapping {
         // ReSharper disable once UnusedMember.Local
         private void OnAttachedToHand() {
             if (steamVRThrowable) {
-                CanSnap = true;
-                AllowSticking = true;
+                CanSnap = handCanSnap;
+                AllowSticking = handAllowSticking;
             }
         }
 
         // ReSharper disable once UnusedMember.Local
         private void OnDetachedFromHand() {
             if (steamVRThrowable) {
-                CanSnap = false;
-                AllowSticking = false;
+                CanSnap = noHandCanSnap;
+                AllowSticking = noHandAllowSticking;
             }
         }
     }
