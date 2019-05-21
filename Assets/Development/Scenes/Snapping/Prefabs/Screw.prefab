@@ -375,6 +375,7 @@ Transform:
   - {fileID: 1446123701}
   - {fileID: 5696336730603569989}
   - {fileID: 2037080643}
+  - {fileID: 1829898509238670307}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -407,9 +408,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rigidbody: {fileID: 0}
-  steamVRThrowable: 1
   canSnap: 0
   allowSticking: 0
+  steamVRThrowable: 1
+  noHandCanSnap: 0
+  noHandAllowSticking: 0
+  handCanSnap: 1
+  handAllowSticking: 1
+  interactable: {fileID: 0}
 --- !u!114 &1161153364352578128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,6 +534,7 @@ MonoBehaviour:
       damper: 5
       maxForce: 50
   screwValue: 0
+  unstickThreshold: 0.05
   unscrewedAnchorPoint: {fileID: 5696336730603569989}
   screwedAnchorPoint: {fileID: 2037080643}
   collidersToDisable:
@@ -736,6 +743,144 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &4411187415419114781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1829898509238670307}
+  - component: {fileID: 4250070078055931976}
+  - component: {fileID: 7532599632495153805}
+  - component: {fileID: 3622796297276550185}
+  - component: {fileID: 4884842204282193003}
+  m_Layer: 0
+  m_Name: ScrewHeadSnapPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1829898509238670307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4411187415419114781}
+  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children: []
+  m_Father: {fileID: 1161153364352578141}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+--- !u!33 &4250070078055931976
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4411187415419114781}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &7532599632495153805
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4411187415419114781}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 94f0d74d98b2b22418fb57a6d8114591, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!135 &3622796297276550185
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4411187415419114781}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4884842204282193003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4411187415419114781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81e23ca801a441c187aed4f8f53da56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  snapsTo: []
+  snapFor:
+  - screw head
+  snappedRotation: {x: 0, y: 0, z: 0}
+  snapBreakDistance: 0
+  unsnapOnTriggerExit: 1
+  spring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 0
+      damper: 0
+      maxForce: 0
+  snapParentMassScale: 0
+  snapChildMassScale: 1
+  stickyBreakDistance: 0
+  unsnapStickyOnTriggerExit: 1
+  stickySpring:
+    position:
+      spring: 1000
+      damper: 100
+      maxForce: 1000
+    rotation:
+      spring: 0
+      damper: 0
+      maxForce: 0
+  stickyParentMassScale: 1
+  stickyChildMassScale: 1
+  axis: {x: 1, y: 0, z: 0}
+  secondaryAxis: {x: 0, y: 1, z: 0}
+  snappable: {fileID: 0}
+  anchorPoint: {fileID: 0}
 --- !u!1 &4746972953330627765
 GameObject:
   m_ObjectHideFlags: 0

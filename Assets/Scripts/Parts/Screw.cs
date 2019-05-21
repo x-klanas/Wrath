@@ -58,10 +58,8 @@ namespace Parts {
         private void Update() {
             if (Input.GetKeyDown(KeyCode.KeypadPlus)) {
                 ScrewValue += 0.1f;
-                UpdateProperties();
             } else if (Input.GetKeyDown(KeyCode.KeypadMinus)) {
                 ScrewValue -= 0.1f;
-                UpdateProperties();
             }
         }
 
