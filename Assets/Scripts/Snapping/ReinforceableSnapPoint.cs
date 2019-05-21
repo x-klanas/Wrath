@@ -43,14 +43,16 @@ namespace Snapping {
         }
 
         public void UpdateSpringSettings() {
-            FullSpringSettings spring = new FullSpringSettings(initialSpring);
+            if (targetPoint) {
+                FullSpringSettings spring = new FullSpringSettings(initialSpring);
 
-            foreach (FullSpringSettings springSetting in appliedSpringSettings) {
-                spring.Add(springSetting);
+                foreach (FullSpringSettings springSetting in appliedSpringSettings) {
+                    spring.Add(springSetting);
+                }
+
+                targetPoint.stickySpring = spring;
+                targetPoint.UpdateProperties();
             }
-
-            targetPoint.stickySpring = spring;
-            targetPoint.UpdateProperties();
         }
     }
 }
